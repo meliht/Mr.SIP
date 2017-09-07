@@ -1,0 +1,10 @@
+CANCEL sip:[[to_user]]@[[server_ip]] SIP/2.0
+Via: SIP/2.0/UDP [[client_ip]]:[[client_port]];branch=[[branch_value]]
+Max-Forwards: 70
+To: [[to_user]] <sip:[[to_user]]@[[server_ip]]>
+From: [[from_user]] <sip:[[from_user]]@[[client_ip]];tag=[[tag_value]]
+Call-ID: [[call_id]]
+CSeq: 1 INVITE
+Contact: <sip:[[from_user]]@[[client_ip]]:[[client_port]]>
+Content-Length: 0
+

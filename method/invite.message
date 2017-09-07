@@ -1,0 +1,12 @@
+INVITE sip:[[to_user]]@[[server_ip]] SIP/2.0
+Via: SIP/2.0/UDP [[client_ip]]:[[client_port]];branch=[[branch_value]]
+Max-Forwards: 70
+To: <sip:[[to_user]]@[[server_ip]]:[[server_port]]>
+From: <sip:[[from_user]]@[[client_ip]];tag=[[tag_value]]
+Call-ID: [[call_id]]@[[client_ip]]
+CSeq: 1 INVITE
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, NOTIFY, MESSAGE, SUBSCRIBE, INFO
+Contact: <sip:[[to_user]]@[[client_ip]]:[[client_port]]>
+User-agent: [[user_agent]]
+Content-Length: 0
+

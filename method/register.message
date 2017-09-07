@@ -1,0 +1,11 @@
+REGISTER sip:[[server.address]] SIP/2.0
+Via: SIP/2.0/UDP [[client.address]]:[[client.port]];branch=z9hG4bK[[branch.random]]
+Max-Forwards: 70
+To: [[client.user]] <sip:[[client.user]]@[[server.address]]>
+From: [[client.user]] <sip:[[client.user]]@[[server.address]]>;tag=456248
+Call-ID: [[CALLID]]
+CSeq: 1 REGISTER
+Contact: <sip:[[client.user]]@[[client.address]]:[[client.port]]>
+Expires: [[expires]]
+User-Agent: Nortel PCC 6.0.155
+Content-Length: 0

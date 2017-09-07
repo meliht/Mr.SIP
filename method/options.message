@@ -1,0 +1,10 @@
+OPTIONS sip:[[server_ip]] SIP/2.0
+Via: SIP/2.0/UDP [[client_ip]]:[[client_port]];branch=[[branch_value]]
+Max-Forwards: 70
+To: <sip:[[server_ip]]>
+From: <sip:[[server_ip]]>;tag=[[tag_value]]
+Call-ID: [[call_id]]
+CSeq: 1 OPTIONS
+Contact: <sip:[[client_ip]]:[[client_port]]>
+Content-Length: 0
+

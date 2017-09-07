@@ -1,0 +1,15 @@
+SUBSCRIBE sip:[[from_user]]@[[server_ip]] SIP/2.0
+Via: SIP/2.0/UDP [[client_ip]]:[[client_port]];branch=[[branch_value]]
+Max-Forwards: 70
+To: [[from_user]] <sip:[[from_user]]@[[server_ip]]>
+From: [[from_user]] <sip:[[from_user]]@[[server_ip]]>;tag=[[tag_value]]
+Call-ID: [[call_id]]
+CSeq: 1 SUBSCRIBE
+Contact: <sip:[[from_user]]@[[client_ip]]:[[client_port]]>
+Expires: [[expire_duration]]
+User-Agent: Nortel PCC 6.0.155
+Allow: INVITE,ACK,OPTIONS,BYE,CANCEL,SUBSCRIBE,NOTIFY,REFER,MESSAGE,INFO,PING,PRACK
+Event: message-summary
+Accept:application/simple-message-summary
+Content-Length: 0
+

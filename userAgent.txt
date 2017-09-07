@@ -1,0 +1,56 @@
+Nortel PCC 6.0.155
+Ahead SIPPS IP Phone Version 2.0.50.8
+Asterisk PBX
+Brcm Callctrl/1.5.1.0 MxSF/v3.2.6.26
+Centile-supra: Centile
+CSCO/4
+CSCO/7
+Grandstream 1.0.4.39
+Grandstream BT100 1.0.4.49
+Grandstream BT100 1.0.4.55
+Grandstream BT100 1.0.5.0
+Grandstream BT100 1.0.5.11
+Grandstream BT100 1.0.5.3
+Grandstream HT286 1.0.4.55
+Grandstream HT286 1.0.5.11
+Grandstream HT286 1.0.5.3
+Grandstream HT486 1.0.4.81
+Grandstream HT486 1.0.5.0
+Grandstream HT486 1.0.5.10
+Grandstream HT486 1.0.5.3
+Grandstream SIP UA 1.0.4.23
+Intraswitch/X.X.X
+KPhone/3.13
+KPhone/3.14
+kphone/4.0.2
+kphone/4.0.3
+kphone/4.0.4
+kphone/4.1.1
+kphone/4.2
+KPhoneSI/1.0
+OmniSession/1.0.0.3
+optiPoint 600 office MxSF/v3.5.3.4
+MxSipApp/4.4.11.69 MxSF/v3.2.7.30
+snom200-2.04l
+snomSoft/3.60j
+VideoTel User Agent/1.1
+X-Lite Free World Dialup build 1101
+X-Lite build 1061
+X-Lite build 1082
+X-Lite build 1095
+X-Lite build 1101
+X-Lite release 1103a
+X-Lite release 1103m
+X-PRO build 1082
+X-PRO release 1103a
+X-PRO release 1103v
+Zultys ZIP 2 3.43
+Zultys ZIP 2 3.50
+ZyXEL P2000W VoIP Wi-Fi Phone
+eyeBeam Beta release 3003j stamp 15638
+eyeBeam release 3002s stamp 15131
+myJabberAE release 1103n
+oSIP/Linphone-0.12.1
+Cisco-SIPGateway/IOS-12.x
+Cisco-CUCM6.1
+
