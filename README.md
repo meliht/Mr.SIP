@@ -3,9 +3,11 @@ SIP-Based Audit and Attack Tool
 
 Mr.SIP is a tool developed to audit and simulate SIP-based attacks. Originally it was developed to be used in academic work to help developing novel SIP-based DDoS attacks and defense approaches and then as an idea to convert it to a fully functional SIP-based penetration testing tool, it has been redeveloped into the current version.
 
-It was used in an academic journal paper titled "Novel SIP-based DDoS Attacks and Effective Defense Strategies" published in Computers & Security 63 (2016) 29-44 by Elsevier, Science Direct http://sciencedirect.com/science/article/pii/S0167404816300980.
 
-In the current state, Mr.SIP comprises four sub-modules named as SIP-NES, SIP-ENUM, SIP-DAS and SIP-ASP. Since it provides a modular structure to developers, more modules will continue be added by the authors and it is open to be contributed by the open-source developer community.
+It was used in an academic journal paper titled "Novel SIP-based DDoS Attacks and Effective Defense Strategies" published in Computers & Security 63 (2016) 29-44 by Elsevier, Science Direct http://sciencedirect.com/science/article/pii/S0167404816300980.
+
+
+In the current state, Mr.SIP comprises four sub-modules named as SIP-NES, SIP-ENUM, SIP-DAS and SIP-ASP. Since it provides a modular structure to developers, more modules will continue be added by the authors and it is open to be contributed by the open-source developer community.
 
 
 SIP-NES needs to enter the IP range or IP subnet information. It sends SIP OPTIONS message to each IP addresses in the subnet and according to the responses outputs the potential SIP clients and servers on that subnet.
@@ -29,4 +31,19 @@ In order to bypass automatic message generation detection (anomaly detection) sy
 UDP is used widely in SIP systems as a transport protocol, so attacks on the target server are implemented by sending the generated attack messages in the network using UDP. Also TCP can be used optionally. The message sender of SIP-DAS allows the optional selection of how many SIP messages could be sent during one second. The number of SIP messages sent in one second depended on the resources (CPU and RAM) of the attacker machine.
 
 
-SIP-ASP (Attack Scenario Player) allows the development of various SIP-based DoS attack scenarios through the use of SIP-DAS as the framework.
+SIP-ASP (Attack Scenario Player) allows the development of various SIP-based DoS attack scenarios through the use of SIP-DAS as the framework.
+
+Usages Examples: 
+
+![Alt text](/screenshots/SIP-NES-scan.jpg?raw=true "SIP-NES scan output")
+
+![Alt text](/screenshots/SIP-NES-messages.jpg?raw=true "Call flow created by SIP-NES")
+
+![Alt text](/screenshots/SIP-DAS-attack.jpg?raw=true "SIP-DAS attack output")
+
+![Alt text](/screenshots/SIP-NES-scan.jpg?raw=true "Call flow created by SIP-DAS")
+
+
+
+
+
