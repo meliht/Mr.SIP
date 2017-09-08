@@ -13,7 +13,7 @@ In the current state, Mr.SIP comprises four sub-modules named as SIP-NES, SIP-EN
 SIP-NES needs to enter the IP range or IP subnet information. It sends SIP OPTIONS message to each IP addresses in the subnet and according to the responses outputs the potential SIP clients and servers on that subnet.
 
 
-IP-ENUM outputs which SIP users are valid according to the responses in that network by sending REGISTER messages to each client IP addresses on the output of SIP-NES.
+SIP-ENUM outputs which SIP users are valid according to the responses in that network by sending REGISTER messages to each client IP addresses on the output of SIP-NES.
 
 
 SIP-DAS (DoS Attack Simulator) is a module developed to simulate SIP-based DoS attacks. It comprises four components: spoofed IP address generator, SIP message generator, message sender and scenario player. It needs outputs of SIP-NES (Network Scanner) and SIP-ENUM (Enumerator) along with some pre-defined files.
