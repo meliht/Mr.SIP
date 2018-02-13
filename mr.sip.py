@@ -2,7 +2,7 @@
 # -*- coding: cp1254 -*-
 
 """
-mr.sip.py: MR SIP is a tool developed to audit and simulate SIP-based attacks.
+mr.sip.py: MR SIP is a tool developed to audit and simulate SIP-based attacks..
 
 # At first you need to instal: 
 # apt-get install python-scapy
