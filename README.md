@@ -32,21 +32,47 @@ UDP is used widely in SIP systems as a transport protocol, so attacks on the tar
 
 SIP-ASP (Attack Scenario Player) allows the development of various SIP-based DoS attack scenarios through the use of SIP-DAS as the framework.
 
-Usages Examples: 
+# Installation
 
-SIP-NES scan output
+Install using pip:
+
+pip install netifaces
+pip install ipaddress
+
+Install using apt:
+
+apt-get install python-scapy
+apt-get install figlet
+apt-get install toilet
+
+
+# Usages Examples: 
+
+SIP-NES usage:
+
+./mr.sip.py --ns --tn <target_network> -i <file_name.txt>  
+
+Scan output: 
 
 ![Alt text](/screenshots/SIP-NES-scan.jpg?raw=true "SIP-NES scan output")
 
-Call flow created by SIP-NES
+Call flow created by SIP-NES on the target SIP server:
+
+sudo ngrep -W byline -d eth0 port 5060 
 
 ![Alt text](/screenshots/SIP-NES-messages.jpg?raw=true "Call flow created by SIP-NES")
 
-SIP-DAS attack output
+SIP-DAS usage:
+
+./mr.sip.py --ds --dm=invite -c 2 --di=<target_IP_address> --dp=5060 -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt -l
+
+Attack output
 
 ![Alt text](/screenshots/SIP-DAS-attack.jpg?raw=true "SIP-DAS attack output")
 
-Call flow created by SIP-DAS
+Call flow created by SIP-DAS on the target SIP server: 
+
+sudo ngrep -W byline -d eth0 port 5060 
 
 ![Alt text](/screenshots/SIP-DAS-messages.jpg?raw=true "Call flow created by SIP-DAS")
 
