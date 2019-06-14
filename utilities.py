@@ -1,4 +1,16 @@
+"""
+#####################################################################################################
+        ################################   Importing Packages  ################################ 
+#####################################################################################################
+"""
+
 import ipaddress, random, os
+
+"""
+#####################################################################################################
+        ################################   Utility Code  ################################ 
+#####################################################################################################
+"""
 
 def readFile(file):
     f = open(file, "r")
@@ -41,3 +53,9 @@ def printProgressBar (iteration, total, prefix = '', decimals = 1, length = 100,
     print '%s |%s| %s%%\r' % (prefix, bar, percent),
     if iteration == total: 
         print ''
+
+def defineTargetType (user_agent):
+    if "Asterisk" in user_agent or "asterisk" in user_agent or "ASTERISK" in user_agent:
+       return "Server"
+    else:
+       return "Client"

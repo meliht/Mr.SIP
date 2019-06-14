@@ -1,9 +1,9 @@
 SUBSCRIBE sip:[[from_user]]@[[server_ip]] SIP/2.0
 Via: SIP/2.0/UDP [[client_ip]]:[[client_port]];branch=[[branch_value]]
 Max-Forwards: 70
-To: [[from_user]] <sip:[[from_user]]@[[server_ip]]>
-From: [[from_user]] <sip:[[from_user]]@[[server_ip]]>;tag=[[tag_value]]
-Call-ID: [[call_id]]
+To: <sip:[[from_user]]@[[server_ip]]>
+From: <sip:[[from_user]]@[[server_ip]]>;tag=[[tag_value]]
+Call-ID: [[call_id]]@[[server_ip]]
 CSeq: 1 SUBSCRIBE
 Contact: <sip:[[from_user]]@[[client_ip]]:[[client_port]]>
 Expires: [[expire_duration]]
@@ -12,4 +12,3 @@ Allow: INVITE,ACK,OPTIONS,BYE,CANCEL,SUBSCRIBE,NOTIFY,REFER,MESSAGE,INFO,PING,PR
 Event: message-summary
 Accept:application/simple-message-summary
 Content-Length: 0
-
