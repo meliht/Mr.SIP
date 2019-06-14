@@ -54,7 +54,7 @@ SIP-NES usage:
 
 Scan output: 
 
-![Alt text](/screenshots/SIP-NES-scan.jpg?raw=true "SIP-NES scan output")
+![Alt text](/screenshots/SIP-NES-scan.png?raw=true "SIP-NES scan output")
 
 Call flow created by SIP-NES on the target SIP server:
 
