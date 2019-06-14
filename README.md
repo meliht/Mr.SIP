@@ -1,5 +1,22 @@
-# Mr.SIP
-SIP-Based Audit and Attack Tool
+#####################################################################################################
+ __  __      ____ ___ ____      ____ ___ ____       _                        _ 
+|  \/  |_ __/ ___|_ _|  _ \ _  / ___|_ _|  _ \     | |__   __ _ ___  ___  __| |
+| |\/| | '__\___ \| || |_) (_) \___ \| || |_) |____| '_ \ / _` / __|/ _ \/ _` |
+| |  | | | _ ___) | ||  __/ _   ___) | ||  __/_____| |_) | (_| \__ \  __/ (_| |
+|_|  |_|_|(_)____/___|_|   (_) |____/___|_|        |_.__/ \__,_|___/\___|\__,_|
+                                                                               
+    _             _ _ _                     _      _   _   _             _    
+   / \  _   _  __| (_) |_    __ _ _ __   __| |    / \ | |_| |_ __ _  ___| | __
+  / _ \| | | |/ _` | | __|  / _` | '_ \ / _` |   / _ \| __| __/ _` |/ __| |/ /
+ / ___ \ |_| | (_| | | |_  | (_| | | | | (_| |  / ___ \ |_| || (_| | (__|   < 
+/_/   \_\__,_|\__,_|_|\__|  \__,_|_| |_|\__,_| /_/   \_\__|\__\__,_|\___|_|\_\
+                                                                              
+ _____           _ 
+|_   _|__   ___ | |
+  | |/ _ \ / _ \| |
+  | | (_) | (_) | |
+  |_|\___/ \___/|_|
+#####################################################################################################
 
 Mr.SIP is a simple console based SIP-based Audit and Attack Tool. Originally it was developed to be used in academic work to help developing novel SIP-based DDoS attacks and then as an idea to convert it to a fully functional SIP-based penetration testing tool.
 
@@ -39,9 +56,6 @@ By using SIP-SIM you can do do Caller-ID spoofing attacks. SIP-SIM support both 
 
 SIP-CRACK is a password cracker. Again, it uses the same sniffing mechanism and it allows you to catch the SIP REGISTER messages, extract the authentication data such as hash values. You can do brute-force based cracking, or you can choose dictionary or rainbow table cracking. So SIP is a time critical protocol and cracking should be an offline attack. 
 
-
-
-
 # Installation
 
 Install using pip:
@@ -66,6 +80,7 @@ SIP-NES usage:
 NOT-1: <target_network_range> should be like 192.168.1.10-192.168.1.20
 NOT-2: <target_network> should be like 192.168.1.0
 NOT-3: You can specify the output by -i <output_file_name>. By default the output will be written to ip_list.txt file which is already exists in the repo. SIP-ENUM uses that file as an input. 
+NOT-3: Default destionation port 5060, if not given. 
 
 Scan output: 
 
@@ -97,15 +112,15 @@ SIP-DAS usage:
 
 by using socket library (but doesn't support IP spoofing) \
 
-./mr.sip.py --ds -dm=invite -c 500 --di=<target_IP_address> --dp=5060 -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt -l
+./mr.sip.py --ds -dm=<sip_method_name> -c <number_of_packets> --di=<target_IP_address> --dp=5060 -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt -l
 
 by using scapy library (ip spoofing is supported) 
 
-./mr.sip.py --ds -dm=invite -c 500 --di=<target_IP_address> --dp=5060 -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt 
+./mr.sip.py --ds -dm=invite -c <number_of_packets> --di=<target_IP_address> --dp=<server_port> -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt 
 
-./mr.sip.py --ds -dm=invite -c 500 --di=<target_IP_address> --dp=5060 -s --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt 
+./mr.sip.py --ds -dm=invite -c <number_of_packets> --di=<target_IP_address> --dp=<server_port> -s --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt 
 
-./mr.sip.py --ds -dm=invite -c 500 --di=<target_IP_address> --dp=5060 -m --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt --il=ip_list.txt 
+./mr.sip.py --ds -dm=invite -c <number_of_packets> --di=<target_IP_address> --dp=<server_port> -m --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt --il=ip_list.txt 
 
 Attack output:
 
