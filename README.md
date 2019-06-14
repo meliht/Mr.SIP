@@ -2,8 +2,6 @@ _________________________________________
 < Mr.SIP: SIP-Based Audit and Attack Tool! >
  -------------------------------------------
 
-![Alt text](/logo/Mr.SIP.png?raw=true "MR.SIP-logo"){:height="50%" width="50%}
-
 Mr.SIP is a simple console based SIP-based Audit and Attack Tool. Originally it was developed to be used in academic work to help developing novel SIP-based DDoS attacks and then as an idea to convert it to a fully functional SIP-based penetration testing tool.
 
 Initially it was developed to be used in academic researches to help developing novel SIP-based DDoS attacks and then as an idea to convert it to a fully functional SIP-based penetration testing tool. So far it has been used more than 5 journal papers. Mr.SIP can also be used as SIP client simulator and SIP traffic generator.
