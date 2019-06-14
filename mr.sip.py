@@ -14,24 +14,37 @@
         ################################   Installation   ################################ 
 #####################################################################################################
 
-# apt-get install python-scapy
+# Install using pip:
 # pip install netifaces
 # pip install ipaddress
-# apt-get install figlet
-# apt-get install toilet
 # pip install pyfiglet
+
+# Install using apt:
+# apt-get install python-scapy
 
 #####################################################################################################
         ################################   Usages   ################################ 
 #####################################################################################################
 
-# SIP-NES Usage: sudo ./mr.sip.py --ns --tn <network_range> -i <file_location>
+# SIP-NES usage:
 
-# SIP-ENUM Usage: sudo ./mr.sip.py --se --fu=fromUser.txt 
+# ./mr.sip.py --ns --tn <target_ip> --dp=<server_port>  
+# ./mr.sip.py --ns --tn <target_network_range> --dp=<server_port>
+# ./mr.sip.py --ns --tn <target_network_address> --dp=<server_port> 
 
-# SIP-DAS usage-1: sudo ./mr.sip.py --ds --dm <sip_method_name> -c <number_of_packets> --di <server_ip> --dp <server_port> -r --to <to_user_file> --fu <from_user_file> --ua <user_agent_file>  --su <sp_user_file> 
-# SIP-DAS usage-2: sudo ./mr.sip.py --ds --dm <sip_method_name> -c <number_of_packets> --di <server_ip> --dp <server_port> -s --to <to_user_file> --fu <from_user_file> --ua <user_agent_file>  --su <sp_user_file> 
-# SIP-DAS usage-3: sudo ./mr.sip.py --ds --dm <sip_method_name> -c <number_of_packets> --di <server_ip> --dp <server_port> -m --to <to_user_file> --fu <from_user_file> --ua <user_agent_file>  --su <sp_user_file> -il <client_ip_list>
+# SIP-ENUM usage:
+
+# ./mr.sip.py --se --dp=5060 --fu=fromUser.txt
+
+SIP-DAS usage:
+
+by using socket library (but doesn't support IP spoofing) \
+./mr.sip.py --ds -dm=<sip_method_name> -c <number_of_packets> --di=<target_IP_address> --dp=5060 -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt -l
+
+by using scapy library (ip spoofing is supported) 
+./mr.sip.py --ds -dm=invite -c <number_of_packets> --di=<target_IP_address> --dp=<server_port> -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt 
+./mr.sip.py --ds -dm=invite -c <number_of_packets> --di=<target_IP_address> --dp=<server_port> -s --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt 
+./mr.sip.py --ds -dm=invite -c <number_of_packets> --di=<target_IP_address> --dp=<server_port> -m --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt --il=ip_list.txt 
 
 #####################################################################################################
         ################################   Tips for SIPtrace  ################################ 
@@ -51,12 +64,12 @@
 """
 
 __author__ = "Melih Tas"
-__copyright__ = "Copyrgiht 2017"
-__credits__ = ["Caner Erce", "Onur Ozbirecikli"]
+__copyright__ = "Copyrgiht 2019"
+__credits__ = ["Caner", "Onur"]
 __license__ = "GPL"
 __version__ = "1.1.0"
 __maintainer__ = "Melih Tas"
-__status__ = "Beta"     
+__status__ = "V2"     
 
 """
 #####################################################################################################
