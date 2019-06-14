@@ -79,7 +79,7 @@ sudo ngrep -W byline -d eth0 port 5060
 
 SIP-ENUM usage:
 
-./mr.sip --se --dp=5060 --fu=fromUser.txt
+./mr.sip.py --se --dp=5060 --fu=fromUser.txt
 
 NOT-1: SIP-ENUM uses ip_list.txt file as an input. 
 
