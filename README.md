@@ -38,19 +38,18 @@ Install using pip:
 
 pip install netifaces
 pip install ipaddress
+pip install pyfiglet 
 
 Install using apt:
 
 apt-get install python-scapy
-apt-get install figlet
-apt-get install toilet
 
 
 # Usages Examples: 
 
 SIP-NES usage:
 
-./mr.sip.py --ns --tn <target_network> -i <file_name.txt>  
+./mr.sip.py --ns --tn <target_network> --dp=5060 -i <file_name.txt>  
 
 Scan output: 
 
@@ -60,7 +59,21 @@ Call flow created by SIP-NES on the target SIP server:
 
 sudo ngrep -W byline -d eth0 port 5060 
 
-![Alt text](/screenshots/SIP-NES-messages.jpg?raw=true "Call flow created by SIP-NES")
+![Alt text](/screenshots/SIP-NES-messages.png?raw=true "Call flow created by SIP-NES")
+
+SIP-ENUM usage:
+
+./mr.sip --se --dp=5060 --fu=fromUser.txt
+
+Scan output: 
+
+![Alt text](/screenshots/SIP-ENUM-scan.png?raw=true "SIP-ENUM scan output")
+
+Call flow created by SIP-NES on the target SIP server:
+
+sudo ngrep -W byline -d eth0 port 5060 
+
+![Alt text](/screenshots/SIP-ENUM-messages.png?raw=true "Call flow created by SIP-ENUM")
 
 SIP-DAS usage:
 
@@ -68,13 +81,13 @@ SIP-DAS usage:
 
 Attack output
 
-![Alt text](/screenshots/SIP-DAS-attack.jpg?raw=true "SIP-DAS attack output")
+![Alt text](/screenshots/SIP-DAS-attack.png?raw=true "SIP-DAS attack output")
 
 Call flow created by SIP-DAS on the target SIP server: 
 
 sudo ngrep -W byline -d eth0 port 5060 
 
-![Alt text](/screenshots/SIP-DAS-messages.jpg?raw=true "Call flow created by SIP-DAS")
+![Alt text](/screenshots/SIP-DAS-messages.png?raw=true "Call flow created by SIP-DAS")
 
 
 
