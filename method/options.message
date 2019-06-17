@@ -1,10 +1,10 @@
-OPTIONS sip:1000@78.189.159.119:[[client_port]] SIP/2.0
-Via: SIP/2.0/UDP [[client_ip]]:[[server_port]];branch=[[branch_value]];rport
-From: <sip:Unknown@[[client_ip]]>;tag=[[tag_value]]
-To: <sip:1000@78.189.159.119>
+OPTIONS sip:[[to_user]]@[[server_ip]] SIP/2.0
+Via: SIP/2.0/UDP [[client_ip]]:[[client_port]];branch=[[branch_value]];rport
+From: <sip:[[from_user]]@[[client_ip]]>;tag=[[tag_value]]
+To: <sip:[[to_user]]@[[server_ip]]>
 Call-ID: [[call_id]]
 CSeq: 1 OPTIONS
-Contact: <sip:Unknown@[[client_ip]]>
+Contact: <sip:[[from_user]]@[[client_ip]]:[[client_port]]>
 Accept: application/sdp
 Max-Forwards: 70
 Content-Length: 0
