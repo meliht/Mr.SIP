@@ -251,7 +251,7 @@ def sipEnumerator():
     ext_counter = 0
     for user_id in user_list:
        
-       sip = sip_packet.sip_packet("subscribe", content[0].strip(), options.dest_port, client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
+       sip = sip_packet.sip_packet("register", content[0].strip(), options.dest_port, client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
        result = sip.generate_packet()
        
        if result["status"]:
