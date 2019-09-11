@@ -116,6 +116,7 @@ group.add_option("--fu", "--from-user", dest="from_user", default="fromUser.txt"
 group.add_option("--su", "--sp-user", dest="sp_user", default="spUser.txt", help="SP User list file location. Default is spUser.txt.")
 group.add_option("--ua", "--user-agent", dest="user_agent", default="userAgent.txt", help="User Agent list file location. Default is userAgent.txt.")
 group.add_option("--il", "--manual-ip-list", dest="manual_ip_list", help="IP list file location.")
+group.add_option("--if", "--interface", dest="interface", help="Interface to work on.")
 parser.add_option_group(group)
     
 (options, args) = parser.parse_args()
@@ -152,7 +153,9 @@ def main():
     """ + "Greetz ~ \033[1m\033[94m Caner \033[1m\033[93m Onur \033[1m\033[95m Nesli \n\033[0m"
                    
     print (banner)
-    
+    if options.interface is not None:
+        conf.iface = options.interface
+
     if options.network_scanner:
         networkScanner()
     elif options.dos_simulator:
@@ -248,7 +251,7 @@ def sipEnumerator():
     ext_counter = 0
     for user_id in user_list:
        
-       sip = sip_packet.sip_packet("subscribe", content[0].strip(), options.dest_port, client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
+       sip = sip_packet.sip_packet("register", content[0].strip(), options.dest_port, client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
        result = sip.generate_packet()
        
        if result["status"]:
