@@ -168,20 +168,20 @@ def networkScanner():
     conf.verb = 0
     
     client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
-    client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask']
+    client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask'] # unused var
 
-    print ("\033[33m[!] Client Interface: {0}".format(str(conf.iface))) + "\033[0m"
-    print ("\033[33m[!] Client IP: {0} ".format(str(client_ip))) + "\033[0m"
+    print ("\033[33m[!] Client Interface: {0}\033[0m".format(str(conf.iface)))
+    print ("\033[33m[!] Client IP: {0}\033[0m".format(str(client_ip)))
     
-    print "\033[94m[!] Network scan process started for {0}".format(options.target_network) + "\033[0m"
+    print ("\033[94m[!] Network scan process started for {0}\033[0m".format(options.target_network))
     
     counter = 0
     if "-" in options.target_network:
        host_range = options.target_network.split("-")
-       host = ipaddress.IPv4Address(unicode(host_range[0])) 
-       last = ipaddress.IPv4Address(unicode(host_range[1]))  
+       host = ipaddress.IPv4Address(str(host_range[0])) # unicode
+       last = ipaddress.IPv4Address(str(host_range[1])) # unicode
        if ipaddress.IPv4Address(host) > ipaddress.IPv4Address(last):
-          print "\033[1;31;40m Error: Second value must bigger than First value.\033[0m"
+          print ("\033[1;31;40m Error: Second value must bigger than First value.\033[0m")
           exit(0)
        while ipaddress.IPv4Address(host) <= ipaddress.IPv4Address(last):
           sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
@@ -192,9 +192,9 @@ def networkScanner():
                 counter += 1
           host = ipaddress.IPv4Address(host) + 1
     elif "/" in options.target_network:
-       targetNetwork = ipaddress.IPv4Network(unicode(options.target_network), strict=False)
+       targetNetwork = ipaddress.IPv4Network(str(options.target_network), strict=False) # unicode
        for host in targetNetwork.hosts():
-          print host
+          print (host)
           
           sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
           result = sip.generate_packet()
@@ -210,7 +210,7 @@ def networkScanner():
           if result["response"]['code'] == 200:
              printResult(result,host)      
              counter += 1
-    print "\033[31m[!] Network scan process finished and {0} live IP address(s) found.".format(str(counter)) + "\033[0m"
+    print ("\033[31m[!] Network scan process finished and {0} live IP address(s) found.\033[0m".format(str(counter)))
 
 def printResult(result,target):
     user_agent = ""
@@ -219,10 +219,10 @@ def printResult(result,target):
           user_agent = list(value)[0]
 
     if utilities.defineTargetType(user_agent) == "Server":
-       print "\033[1;32m[+] New live IP found on " + target + ", It seems as a SIP Server.\033[0m"
+       print ("\033[1;32m[+] New live IP found on " + target + ", It seems as a SIP Server.\033[0m")
        utilities.writeFile(options.ip_list, target + ";" + user_agent + ";SIP Server" + "\n")
     else :
-       print "\033[1;32m[+] New live IP found on " + target + ", It seems as a SIP Client.\033[0m"
+       print ("\033[1;32m[+] New live IP found on " + target + ", It seems as a SIP Client.\033[0m")
        utilities.writeFile(options.ip_list, target + ";" + user_agent + ";SIP Client" + "\n")
 
 # SIP-ENUM: SIP-based Enumerator 
@@ -230,22 +230,22 @@ def sipEnumerator():
     conf.verb = 0
     
     client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
-    client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask']
+    client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask'] # unusued var
 
-    print ("\033[33m[!] Client Interface: {0}".format(str(conf.iface))) + "\033[0m"
-    print ("\033[33m[!] Client IP: {0} ".format(str(client_ip))) + "\033[0m"
+    print ("\033[33m[!] Client Interface: {0}\033[0m".format(str(conf.iface)))
+    print ("\033[33m[!] Client IP: {0}\033[0m".format(str(client_ip)))
     
-    print "\033[94m[!] Enumeration process started. \033[0m"
+    print ("\033[94m[!] Enumeration process started. \033[0m")
 
     user_list = utilities.readFile(options.from_user)
     user_list = user_list.split("\n")
     if len(user_list) <= 1:
-       print "\033[1;31;40m Error: From user not found. Please enter a valid From User list.\033[0m"
+       print ("\033[1;31;40m Error: From user not found. Please enter a valid From User list.\033[0m")
        exit(0)
     content = utilities.readFile("ip_list.txt")
     content = content.split(";")
     if len(content[0]) <= 1:
-       print "\033[1;31;40m Error: Target IP not found. Please run SIP-NES first for detect the target IPs.\033[0m"
+       print ("\033[1;31;40m Error: Target IP not found. Please run SIP-NES first for detect the target IPs.\033[0m")
        exit(0)
     content = content[0].split(";")
     ext_counter = 0
@@ -256,12 +256,12 @@ def sipEnumerator():
        
        if result["status"]:
           if result["response"]['code'] == 200: 
-             print "\033[1;32m[+] New SIP Extension Found : " + user_id + ",\033[0m \033[1;31mAuthentication not required!\033[0m"
+             print ("\033[1;32m[+] New SIP Extension Found : " + user_id + ",\033[0m \033[1;31mAuthentication not required!\033[0m")
              ext_counter = ext_counter + 1
           if result["response"]['code'] == 401:
-             print "\033[1;32m[+] New SIP Extension Found : " + user_id + ", Authentication required.\033[0m"
+             print ("\033[1;32m[+] New SIP Extension Found : " + user_id + ", Authentication required.\033[0m")
              ext_counter = ext_counter + 1
-    print "[!] " + str(ext_counter) + " SIP Extension Found."       
+    print ("[!] " + str(ext_counter) + " SIP Extension Found.")
              
 # SIP-DAS: SIP-based DoS Attack Simulator
 def dosSmilator():
@@ -273,7 +273,7 @@ def dosSmilator():
     print ("\033[33m[!] Client Interface: {0}".format(str(conf.iface))) + "\033[0m"
     print ("\033[33m[!] Client IP: {0} ".format(str(client_ip))) + "\033[0m"
 
-    print "\033[94m[!] DoS attack simulation process started. \033[0m"
+    print ("\033[94m[!] DoS attack simulation process started. \033[0m")
     
     utilities.promisc("on",conf.iface)
 
@@ -294,7 +294,7 @@ def dosSmilator():
             if options.manual and not options.library:
                 client = random.choice([line.rstrip('\n') for line in open(options.manual_ip_list)])
             if options.subnet and not options.library:
-                client = utilities.randomIPAddressFromNetwork(client_ip, client_netmask)
+                client = utilities.randomIPAddressFromNetwork(client_ip, client_netmask) # Network argument not given??
             send_protocol = "scapy"
             if options.library:
                 send_protocol = "socket"
@@ -308,7 +308,7 @@ def dosSmilator():
             print("Exiting traffic generation...")
             raise SystemExit
     
-    print "\033[31m[!] DoS simulation finished and {0} packet sent to {1}...".format(str(i),str(options.dest_ip)) + "\033[0m"
+    print ("\033[31m[!] DoS simulation finished and {0} packet sent to {1}...\033[0m".format(str(i),str(options.dest_ip)))
     utilities.promisc("off",conf.iface)
 
 if __name__ == "__main__":

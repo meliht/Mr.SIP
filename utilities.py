@@ -30,7 +30,7 @@ def randomIPAddressFromNetwork(IP, Netmask, Network):
     else:
         network = "{0}/{1}".format(str(IP), str(Netmask))
 
-    targetNetwork = ipaddress.IPv4Network(unicode(network), strict=False)
+    targetNetwork = ipaddress.IPv4Network(str(network), strict=False) # unicode
     ipCount = int(targetNetwork.num_addresses)
     firstIpAddress = targetNetwork.network_address
     randomInt = random.randint(0,ipCount-1)
@@ -50,9 +50,9 @@ def printProgressBar (iteration, total, prefix = '', decimals = 1, length = 100,
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
-    print '%s |%s| %s%%\r' % (prefix, bar, percent),
+    print( '%s |%s| %s%%\r' % (prefix, bar, percent))
     if iteration == total: 
-        print ''
+        print ('')
 
 def defineTargetType (user_agent):
     if "Asterisk" in user_agent or "asterisk" in user_agent or "ASTERISK" in user_agent:

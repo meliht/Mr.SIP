@@ -63,7 +63,7 @@ class sip_packet:
     
     @staticmethod
     def get_rand_call_id():
-        prefix = ''.join(random.sample(string.digits + string.lowercase, 27))
+        prefix = ''.join(random.sample(string.digits + string.ascii_lowercase, 27))
         return "{0}{1}".format(str(prefix), str(random.randrange(10000, 99999)))
 
     @staticmethod
@@ -140,7 +140,7 @@ class sip_packet:
             if len(first_line) == 3:
                 version,code,description = first_line
             else:
-                print 'Could not parse the first header line: {0}'.format(first_line)
+                print ('Could not parse the first header line: {0}'.format(first_line))
                 return response
             try:
                 response['code'] = int(code)
