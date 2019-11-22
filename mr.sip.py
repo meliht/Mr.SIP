@@ -127,6 +127,24 @@ parser.add_option_group(group)
 #####################################################################################################
 """
 
+"""
+#############################################################
+####################   PREPARE THREADS   ####################
+#############################################################
+"""
+import threading
+import queue
+
+exitFlag = 0
+
+threadList = ['thread-1', 'thread-2', 'thread-3']  # add as many threads as you wish (might depend on your PC)
+   
+queueLock = threading.Lock()  # work will be done sorted by hosts
+workQueue = queue.Queue()  # create a queue with maximum capacity
+threads = []  # threads will be placed here, to close them later
+threadID = 1  # unique IDs for threads
+"""#############################################################"""
+
 def main():
     
     # ascii_banner = pyfiglet.figlet_format("Mr.SIP: SIP-Based Audit and Attack Tool")
@@ -174,7 +192,18 @@ def networkScanner():
     print ("\033[33m[!] Client IP: {0}\033[0m".format(str(client_ip)))
     
     print ("\033[94m[!] Network scan process started for {0}\033[0m".format(options.target_network))
+
+
+    ### Create new threads ###
+    for threadName in threadList:
+       thread = ThreadSIPNES(threadID, threadName, workQueue, options.dest_port, client_ip)
+       thread.start()  # invoke the 'run()' function in the class
+       threads.append(thread)
+       threadID += 1
     
+    
+    global counter
+    global exitFlag
     counter = 0
     if "-" in options.target_network:
        host_range = options.target_network.split("-")
@@ -183,25 +212,72 @@ def networkScanner():
        if ipaddress.IPv4Address(host) > ipaddress.IPv4Address(last):
           print ("\033[1;31;40m Error: Second value must bigger than First value.\033[0m")
           exit(0)
+
+       #############################################################
+       ####################      USE THREADS    ####################
+       #############################################################
+       # generate hosts for queue and runners
+       hosts = []
        while ipaddress.IPv4Address(host) <= ipaddress.IPv4Address(last):
-          sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
-          result = sip.generate_packet()
-          if result["status"]: 
-             if result["response"]['code'] == 200:
-                printResult(result,str(host))
-                counter += 1
           host = ipaddress.IPv4Address(host) + 1
+          hosts.append(host)
+       
+       # Fill the queue
+       queueLock.acquire()
+       queueLock.release()  # start doing jobs as soon as queue is populated
+       for host in hosts:
+          workQueue.put(host)  # get to work!
+       
+       while not workQueue.empty(): pass  # Wait for queue to empty
+       exitFlag = 1  # Notify threads it's time to exit
+       for t in threads: t.join()  # Wait for all threads to complete
+       
+       print ("Exiting Main Thread")
+       #############################################################
+
+      #  single threaded code:
+      #  while ipaddress.IPv4Address(host) <= ipaddress.IPv4Address(last):
+      #     sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
+      #     result = sip.generate_packet()
+      #     if result["status"]: 
+      #        if result["response"]['code'] == 200:
+      #           printResult(result,str(host))
+      #           counter += 1
+      #     host = ipaddress.IPv4Address(host) + 1
     elif "/" in options.target_network:
        targetNetwork = ipaddress.IPv4Network(str(options.target_network), strict=False) # unicode
+
+       #############################################################
+       ####################      USE THREADS    ####################
+       #############################################################
+       # generate hosts for queue and runners
+       hosts = []
        for host in targetNetwork.hosts():
-          print (host)
+          hosts.append(host)
+       
+       # Fill the queue
+       queueLock.acquire()
+       queueLock.release()  # start doing jobs as soon as queue is populated
+       for host in hosts:
+          workQueue.put(host)  # get to work!
+       
+       while not workQueue.empty(): pass  # Wait for queue to empty
+       exitFlag = 1  # Notify threads it's time to exit
+       for t in threads: t.join()  # Wait for all threads to complete
+       
+       print ("Exiting Main Thread")
+       #############################################################
+
+      #  single threaded code:
+      #  for host in targetNetwork.hosts():
+      #     print (host)
           
-          sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
-          result = sip.generate_packet()
-          if result["status"]: 
-             if result["response"]['code'] == 200:
-                printResult(result,str(host))
-                counter += 1
+      #     sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
+      #     result = sip.generate_packet()
+      #     if result["status"]: 
+      #        if result["response"]['code'] == 200:
+      #           printResult(result,str(host))
+      #           counter += 1
     else:
        host =  options.target_network
        sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
@@ -310,6 +386,46 @@ def dosSmilator():
     
     print ("\033[31m[!] DoS simulation finished and {0} packet sent to {1}...\033[0m".format(str(i),str(options.dest_ip)))
     utilities.promisc("off",conf.iface)
+
+
+
+# Objects and functions for threading
+
+# Thread object for SIP-NES function
+class ThreadSIPNES(threading.Thread):
+   def __init__(self, threadID, name, q, dest_port, client_ip):
+      threading.Thread.__init__(self)  # inherit the constructor
+      self.threadID = threadID
+      self.name = name
+      self.q = q
+
+      self.dest_port = dest_port
+      self.client_ip = client_ip
+   
+   def run(self):
+      sip_genPackage_worker(self.name, self.q, self.dest_port, self.client_ip)
+
+
+# worker function that generates packages
+def sip_genPackage_worker(name, q, dest_port, client_ip):
+   global counter  # notice how we use 'global' counter
+   global exitFlag
+   
+   while not exitFlag:
+      queueLock.acquire()
+      if not workQueue.empty():
+         host = q.get()  # get host
+         sip = sip_packet.sip_packet("options", host, dest_port, client_ip, protocol="socket", wait=True)  # set options
+         result = sip.generate_packet()  # generate packet.
+         if result["status"]: 
+            if result["response"]['code'] == 200:
+               printResult(result,str(host))
+               counter += 1  # global counter changed
+
+         queueLock.release()  # when a job is done, release the lock
+      else:
+         queueLock.release()  # when no jobs exist, release the lock
+
 
 if __name__ == "__main__":
     main()
