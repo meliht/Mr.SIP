@@ -92,41 +92,43 @@ class sip_packet:
 
         for key, value in var_dict.items():
             text = text.replace(key, value)
-        return text
+        return text.encode()
 
     def generate_packet(self):
-        try:
-            f = open(os.path.join(self.method_location, "{0}.message".format(self.method)), "r")
-            packet_data = f.read()
-            packet_data = self.fill_packet_data(packet_data)
+        # try:
+        f = open(os.path.join(self.method_location, "{0}.message".format(self.method)), "r")
+        packet_data = f.read()
+        packet_data = self.fill_packet_data(packet_data)
 
-            if self.protocol == "socket":
-                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                s.settimeout(5)
-                s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-                s.connect((str(self.server_ip), int(self.server_port)))
-                s.sendall(packet_data)
-                if self.wait:
-                    buff,srcaddr = s.recvfrom(8192)
-                    s.close()
-                    status = self.getResponse(buff)
-                    return {"status": True, "response": status}
-                else:
-                    s.close()
-                    return {"status": True}
-
-            elif self.protocol == "scapy":
-                pkt = IP(src=self.client_ip, dst=self.server_ip) / UDP(sport=int(self.client_port), dport=int(self.server_port)) / packet_data
-                send(pkt, iface=conf.iface)
+        if self.protocol == "socket":
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.settimeout(5)
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            s.connect((str(self.server_ip), int(self.server_port)))
+            s.sendall(packet_data)
+            if self.wait:
+                buff,srcaddr = s.recvfrom(8192)
+                s.close()
+                status = self.getResponse(buff)
+                return {"status": True, "response": status}
+            else:
+                s.close()
                 return {"status": True}
-        except:
-            return {"status": False}
+
+        elif self.protocol == "scapy":
+            pkt = IP(src=self.client_ip, dst=self.server_ip) / UDP(sport=int(self.client_port), dport=int(self.server_port)) / packet_data
+            send(pkt, iface=conf.iface)
+            return {"status": True}
+        # except Exception as e:
+        #     print(e)
+        #     return {"status": False}
 
 
     def getResponse(self, resp):
         import re
         nl = '\r\n\r\n'
         headers_nl = '\r*\n(?![\t\x20])'
+        resp = resp.decode()
         if nl in resp:
             header,body = resp.split(nl,1)
         else:

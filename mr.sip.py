@@ -198,17 +198,19 @@ def networkScanner():
     #############################################################
     ### Create new threads ###
     global threadID
+    global counter
+    global exitFlag
+
+    counter = 0
+
     for threadName in threadList:
        thread = ThreadSIPNES(threadID, threadName, workQueue, options.dest_port, client_ip)
        thread.start()  # invoke the 'run()' function in the class
        threads.append(thread)
        threadID += 1
     #############################################################
-    
-    
-    global counter
-    global exitFlag
-    counter = 0
+
+
     if "-" in options.target_network:
        host_range = options.target_network.split("-")
        host = ipaddress.IPv4Address(str(host_range[0])) # unicode
@@ -228,10 +230,11 @@ def networkScanner():
        
        # Fill the queue
        queueLock.acquire()
-       queueLock.release()  # start doing jobs as soon as queue is populated
+       
        for host in hosts:
           workQueue.put(host)  # get to work!
-       
+       queueLock.release()  # start doing jobs as soon as queue is populated
+
        while not workQueue.empty(): pass  # Wait for queue to empty
        exitFlag = 1  # Notify threads it's time to exit
        for t in threads: t.join()  # Wait for all threads to complete
@@ -294,7 +297,7 @@ def networkScanner():
 
 def printResult(result,target):
     user_agent = ""
-    for key, value in result["response"]['headers'].iteritems():
+    for key, value in result["response"]['headers'].items():
        if key == "user-agent":              
           user_agent = list(value)[0]
 
