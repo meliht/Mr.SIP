@@ -143,6 +143,8 @@ queueLock = threading.Lock()  # work will be done sorted by hosts
 workQueue = queue.Queue()  # create a queue with maximum capacity
 threads = []  # threads will be placed here, to close them later
 threadID = 1  # unique IDs for threads
+
+counter = 0
 """#############################################################"""
 
 def main():
@@ -193,13 +195,15 @@ def networkScanner():
     
     print ("\033[94m[!] Network scan process started for {0}\033[0m".format(options.target_network))
 
-
+    #############################################################
     ### Create new threads ###
+    global threadID
     for threadName in threadList:
        thread = ThreadSIPNES(threadID, threadName, workQueue, options.dest_port, client_ip)
        thread.start()  # invoke the 'run()' function in the class
        threads.append(thread)
        threadID += 1
+    #############################################################
     
     
     global counter
@@ -388,7 +392,7 @@ def dosSmilator():
     utilities.promisc("off",conf.iface)
 
 
-
+#############################################################
 # Objects and functions for threading
 
 # Thread object for SIP-NES function
@@ -425,7 +429,7 @@ def sip_genPackage_worker(name, q, dest_port, client_ip):
          queueLock.release()  # when a job is done, release the lock
       else:
          queueLock.release()  # when no jobs exist, release the lock
-
+#############################################################
 
 if __name__ == "__main__":
     main()
