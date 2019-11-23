@@ -134,10 +134,12 @@ parser.add_option_group(group)
 """
 import threading
 import queue
+import time
 
 exitFlag = 0
 
-threadList = ['thread-1', 'thread-2', 'thread-3']  # add as many threads as you wish (might depend on your PC)
+# threadList = ['thread-1', 'thread-2', 'thread-3']  # add as many threads as you wish (might depend on your PC)
+threadList = ['thread-1']  # add as many threads as you wish (might depend on your PC)
    
 queueLock = threading.Lock()  # work will be done sorted by hosts
 workQueue = queue.Queue()  # create a queue with maximum capacity
@@ -227,12 +229,12 @@ def networkScanner():
        while ipaddress.IPv4Address(host) <= ipaddress.IPv4Address(last):
           host = ipaddress.IPv4Address(host) + 1
           hosts.append(host)
+      #  print("Hosts: {}".format(hosts))
        
        # Fill the queue
-       queueLock.acquire()
-       
+       queueLock.acquire()  # lock the queue
        for host in hosts:
-          workQueue.put(host)  # get to work!
+          workQueue.put(host)  # work to do!
        queueLock.release()  # start doing jobs as soon as queue is populated
 
        while not workQueue.empty(): pass  # Wait for queue to empty
@@ -261,13 +263,14 @@ def networkScanner():
        hosts = []
        for host in targetNetwork.hosts():
           hosts.append(host)
+          print("HOST: {}".format(host))
        
        # Fill the queue
-       queueLock.acquire()
-       queueLock.release()  # start doing jobs as soon as queue is populated
+       queueLock.acquire()  # lock the queue
        for host in hosts:
           workQueue.put(host)  # get to work!
-       
+       queueLock.release()  # start doing jobs as soon as queue is populated
+
        while not workQueue.empty(): pass  # Wait for queue to empty
        exitFlag = 1  # Notify threads it's time to exit
        for t in threads: t.join()  # Wait for all threads to complete
@@ -289,6 +292,11 @@ def networkScanner():
        host =  options.target_network
        sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
        result = sip.generate_packet()
+
+       while not workQueue.empty(): pass  # Wait for queue to empty
+       exitFlag = 1  # Notify threads it's time to exit
+       for t in threads: t.join()  # Wait for all threads to complete
+
        if result["status"]:
           if result["response"]['code'] == 200:
              printResult(result,host)      
@@ -422,8 +430,18 @@ def sip_genPackage_worker(name, q, dest_port, client_ip):
       queueLock.acquire()
       if not workQueue.empty():
          host = q.get()  # get host
+
+         print("CURRENT HOST: {}".format(host))
+         print("QUEUE: {}".format(q))
+
          sip = sip_packet.sip_packet("options", host, dest_port, client_ip, protocol="socket", wait=True)  # set options
+
+         print("HOST: {}\nDEST_PORT: {}\nCLIENT_IP: {}".format(host, dest_port, client_ip))
+
          result = sip.generate_packet()  # generate packet.
+         time.sleep(10)
+         q.task_done()  # tell the queue that the last q.get() is done
+         print("{} worked the result: {}".format(name, result))
          if result["status"]: 
             if result["response"]['code'] == 200:
                printResult(result,str(host))
