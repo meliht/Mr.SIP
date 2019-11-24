@@ -254,7 +254,7 @@ def networkScanner():
        exitFlag = 1  # Notify threads it's time to exit
        for t in threads: t.join()  # Wait for all threads to complete
        
-       print ("Exiting Main Thread")
+       # print ("Exiting Main Thread")
        #############################################################
 
       # single threaded old code:
@@ -450,7 +450,7 @@ def sip_genPackage_worker(name, workQueue, dest_port, client_ip):
 
          # workQueue.task_done()  # tell the queue that the last q.get() is done
 
-         print("Current host: {} \n\033[01m{}\033[0m returns the result: {}\n".format(host, name, result))
+         # print("Current host: {} \n\033[01m{}\033[0m returns the result: {}\n".format(host, name, result))
 
          if result["status"]: 
             if result["response"]['code'] == 200:
