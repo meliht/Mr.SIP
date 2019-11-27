@@ -137,7 +137,7 @@ import time
 exitFlag = 0
 
 
-# Choose as manu threads as you like:
+# Choose as many threads as you like:
 # threadList = ['thread-1']
 # threadList = ['thread-1', 'thread-2']
 # threadList = ['thread-1', 'thread-2', 'thread-3']
@@ -237,7 +237,6 @@ def networkScanner():
           print "\033[1;31;40m Error: Second value must bigger than First value.\033[0m"
           exit(0)
 
-       ####################      USE THREADS    ####################
        # generate hosts for queue and runners
        hosts = []
        while ipaddress.IPv4Address(host) <= ipaddress.IPv4Address(last):
@@ -253,23 +252,9 @@ def networkScanner():
        while not workQueue.empty(): pass  # Wait for queue to empty
        exitFlag = 1  # Notify threads it's time to exit
        for t in threads: t.join()  # Wait for all threads to complete
-       
-       # print ("Exiting Main Thread")
-       #############################################################
-
-      # single threaded old code:
-      #  while ipaddress.IPv4Address(host) <= ipaddress.IPv4Address(last):
-      #     sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
-      #     result = sip.generate_packet()
-      #     if result["status"]: 
-      #        if result["response"]['code'] == 200:
-      #           printResult(result,str(host))
-      #           counter += 1
-      #     host = ipaddress.IPv4Address(host) + 1
     elif "/" in options.target_network:
        targetNetwork = ipaddress.IPv4Network(unicode(options.target_network), strict=False)
 
-       ####################      USE THREADS    ####################
        # generate hosts for queue and runners
        hosts = []
        for host in targetNetwork.hosts(): hosts.append(host)
@@ -283,19 +268,6 @@ def networkScanner():
        while not workQueue.empty(): pass  # Wait for queue to empty
        exitFlag = 1  # Notify threads it's time to exit
        for t in threads: t.join()  # Wait for all threads to complete
-       
-       print ("Exiting Main Thread")
-       #############################################################
-
-      # single threaded old code:
-      #  for host in targetNetwork.hosts():
-      #     print host
-      #     sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
-      #     result = sip.generate_packet()
-      #     if result["status"]: 
-      #        if result["response"]['code'] == 200:
-      #           printResult(result,str(host))
-      #           counter += 1
     else:
        host =  options.target_network
        sip = sip_packet.sip_packet("options", host, options.dest_port, client_ip, protocol="socket", wait=True)
@@ -351,20 +323,32 @@ def sipEnumerator():
        print "\033[1;31;40m Error: Target IP not found. Please run SIP-NES first for detect the target IPs.\033[0m"
        exit(0)
     content = content[0].split(";")
-    ext_counter = 0
+
+
+    global threadID
+    global counter
+    global exitFlag
+
+    counter = 0  # extension counter
+
+    for threadName in threadList:
+       thread = ThreadSIPENUM(threadID, threadName, workQueue, content[0].strip(), options.dest_port, client_ip)
+       thread.start()  # invoke the 'run()' function in the class
+       threads.append(thread)
+       threadID += 1
+    
+    queueLock.acquire()
     for user_id in user_list:
-       
-       sip = sip_packet.sip_packet("register", content[0].strip(), options.dest_port, client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
-       result = sip.generate_packet()
-       
-       if result["status"]:
-          if result["response"]['code'] == 200: 
-             print "\033[1;32m[+] New SIP Extension Found : " + user_id + ",\033[0m \033[1;31mAuthentication not required!\033[0m"
-             ext_counter = ext_counter + 1
-          if result["response"]['code'] == 401:
-             print "\033[1;32m[+] New SIP Extension Found : " + user_id + ", Authentication required.\033[0m"
-             ext_counter = ext_counter + 1
-    print "[!] " + str(ext_counter) + " SIP Extension Found."       
+       workQueue.put(user_id)
+    queueLock.release()
+
+    # finish up the work
+    while not workQueue.empty(): pass  # Wait for queue to empty
+    exitFlag = 1  # Notify threads it's time to exit
+    for t in threads: t.join()  # Wait for all threads to complete
+
+
+    print "[!] " + str(counter) + " SIP Extension Found."       
              
 # SIP-DAS: SIP-based DoS Attack Simulator
 def dosSmilator():
@@ -415,7 +399,41 @@ def dosSmilator():
     utilities.promisc("off",conf.iface)
 
 
-###########    Objects and functions for threading     ###########
+
+class ThreadSIPENUM(threading.Thread):
+   def __init__(self, threadID, name, workQueue, serverIP, dest_port, client_ip):
+      threading.Thread.__init__(self)
+      self.threadID = threadID
+      self.name = name
+      self.workQueue = workQueue
+
+      self.serverIP = serverIP
+      self.dest_port = dest_port
+      self.client_ip = client_ip
+
+   def run(self):
+      global counter  # extension counter
+      global exitFlag
+
+      while not exitFlag:
+         queueLock.acquire()
+         if not workQueue.empty():
+            user_id = workQueue.get()  # get host
+            queueLock.release()  # when host is acquired, release the lock
+
+            sip = sip_packet.sip_packet("register", self.serverIP, self.dest_port, self.client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
+            result = sip.generate_packet()
+            
+            if result["status"]:
+               if result["response"]['code'] == 200: 
+                  print "\033[1;32m[+] New SIP Extension Found : " + user_id + ",\033[0m \033[1;31mAuthentication not required!\033[0m"
+                  counter += 1
+               if result["response"]['code'] == 401:
+                  print "\033[1;32m[+] New SIP Extension Found : " + user_id + ", Authentication required.\033[0m"
+                  counter += 1
+         else:
+            queueLock.release()
+
 
 # Thread object for SIP-NES function
 class ThreadSIPNES(threading.Thread):
@@ -430,7 +448,6 @@ class ThreadSIPNES(threading.Thread):
    
    def run(self):
       sip_genPackage_worker(self.name, self.workQueue, self.dest_port, self.client_ip)
-#############################################################
 
 
 # worker function that generates packages
@@ -441,16 +458,11 @@ def sip_genPackage_worker(name, workQueue, dest_port, client_ip):
    while not exitFlag:
       queueLock.acquire()
       if not workQueue.empty():
-
          host = workQueue.get()  # get host
          queueLock.release()  # when host is acquired, release the lock
 
          sip = sip_packet.sip_packet("options", host, dest_port, client_ip, protocol="socket", wait=True)  # set options
          result = sip.generate_packet()  # generate packet.
-
-         # workQueue.task_done()  # tell the queue that the last q.get() is done
-
-         # print("Current host: {} \n\033[01m{}\033[0m returns the result: {}\n".format(host, name, result))
 
          if result["status"]: 
             if result["response"]['code'] == 200:
@@ -458,7 +470,6 @@ def sip_genPackage_worker(name, workQueue, dest_port, client_ip):
                counter += 1  # global counter changed
       else:
          queueLock.release()  # when no jobs exist, release the lock
-#############################################################
 
 
 if __name__ == "__main__":
