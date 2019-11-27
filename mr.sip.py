@@ -83,6 +83,7 @@ logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import conf, IP
 import sip_packet, utilities
 import pyfiglet
+import itertools
 
 """
 #####################################################################################################
@@ -158,12 +159,12 @@ exitFlag = 0
 # threadList = ['thread-1', 'thread-2']
 # threadList = ['thread-1', 'thread-2', 'thread-3']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4']
-threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5']
+# threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7', 'thread-8']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7', 'thread-8', 'thread-9']
-# threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7', 'thread-8', 'thread-9', 'thread-10']
+threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7', 'thread-8', 'thread-9', 'thread-10']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7', 'thread-8', 'thread-9', 'thread-10','thread-11']
 
    
@@ -298,35 +299,68 @@ def sipEnumerator():
       print ("\033[1;31;40m Error: From user not found. Please enter a valid From User list.\033[0m")
       exit(0)
 
-   content = utilities.readFile("ip_list.txt").split(";")
-   if len(content[0]) <= 1:
-      print ("\033[1;31;40m Error: Target IP not found. Please run SIP-NES first for detect the target IPs.\033[0m")
-      exit(0)
-   content = content[0].split(";")
+   if options.target_network:
+      target_networks = options.target_network
+   else:
+      content = utilities.readFile("ip_list.txt").split(";")
+      if len(content[0]) <= 1:
+         print ("\033[1;31;40m Error: Target IP not found. Please run SIP-NES first for detect the target IPs.\033[0m")
+         exit(0)
+
+      with open('ip_list.txt', 'r') as f: target_networks = [line.split(';')[0] for line in f.readlines()] 
+
+   # combination of all target_networks with user_IDs
+   target_network__user_id = [(target_network, user_id) for target_network, user_id in itertools.product(target_networks, user_list)]
 
 
    global threadID
    global counter
    global exitFlag
-
+   global workQueue
    counter = 0  # extension counter
 
+   workQueues = []  # a list of queues, in case there will be thousands of jobs to do... (See below)
+   for c, tn_ui in enumerate(target_network__user_id):
+      if c % len(user_list) == 0:
+         workQueues.append(queue.Queue())
+         workQueues[int(c // len(user_list))].put(tn_ui)
+      else:
+         workQueues[int(c // len(user_list))].put(tn_ui)
+
+
    for threadName in threadList:
-      thread = ThreadSIPENUM(threadID, threadName, options.dos_method, content[0].strip(), options.dest_port, client_ip)
+      thread = ThreadSIPENUM(threadID, threadName, options.dos_method, options.dest_port, client_ip)
       thread.start()  # invoke the 'run()' function in the class
       threads.append(thread)
       threadID += 1
-   
-   for user_id in user_list:
-      workQueue.put(user_id)
 
-   # finish up the work
-   while not workQueue.empty(): pass  # Wait for queue to empty
-   exitFlag = 1  # Notify threads it's time to exit
-   for t in threads: t.join()  # Wait for all threads to complete
 
+   _prompt = "{} user IDs will be checked for target network {}.\nDo you want to continue checking ({}/{} target networks completed)? (y/n) "
+   for c, wQ in enumerate(workQueues):
+      if c < len(target_networks) - 1:
+         isContinue = raw_input(_prompt.format(len(user_list), target_networks[c], c+1, len(target_networks)))
+      elif c == len(target_networks) - 1:
+         isContinue = raw_input(_prompt.format(len(user_list), target_networks[c], c+1, len(target_networks)))
+
+      if isContinue == 'y':
+         workQueue = wQ
+         while not workQueue.empty(): pass # Wait for queue to empty
+      elif isContinue == 'n':
+         exitFlag = 1
+         print("Terminating by user input")
+         for t in threads: t.join()  # Wait for all threads to complete
+         break
+      else:
+         exitFlag = 1 
+         print("Answer not understood. Please answer y/n.")
+         for t in threads: t.join()  
+         exit(0)
+
+   exitFlag = 1  
+   for t in threads: t.join()  
 
    print ("[!] " + str(counter) + " SIP Extension Found.")
+             
              
 # SIP-DAS: SIP-based DoS Attack Simulator
 def dosSmilator():
@@ -442,16 +476,14 @@ class ThreadSIPNES(threading.Thread):
             queueLock.release()  # when no jobs exist, release the lock
 
 
-
 # Thread object for SIP-ENUM
 class ThreadSIPENUM(threading.Thread):
-   def __init__(self, threadID, name, option, serverIP, dest_port, client_ip):
+   def __init__(self, threadID, name, option, dest_port, client_ip):
       threading.Thread.__init__(self)
       self.threadID = threadID
       self.name = name
 
       self.option = option
-      self.serverIP = serverIP
       self.dest_port = dest_port
       self.client_ip = client_ip
 
@@ -464,10 +496,13 @@ class ThreadSIPENUM(threading.Thread):
       while not exitFlag:
          queueLock.acquire()
          if not workQueue.empty():
-            user_id = workQueue.get()  # get host
+            tn_ui = workQueue.get()  # get host
             queueLock.release()  # when host is acquired, release the lock
 
-            sip = sip_packet.sip_packet(self.option, self.serverIP, self.dest_port, self.client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
+            target_network = tn_ui[0]
+            user_id = tn_ui[1]
+
+            sip = sip_packet.sip_packet(self.option, target_network, self.dest_port, self.client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
             result = sip.generate_packet()
             
             if result["status"]:
