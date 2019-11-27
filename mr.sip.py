@@ -390,9 +390,20 @@ def printResult(result,target):
    if utilities.defineTargetType(user_agent) == "Server":
       print ("\033[1;32m[+] New live IP found on " + target + ", It seems as a SIP Server.\033[0m")
       utilities.writeFile(options.ip_list, target + ";" + user_agent + ";SIP Server" + "\n")
-   else :
+      removeDuplicateLines(options.ip_list)
+   else:
       print ("\033[1;32m[+] New live IP found on " + target + ", It seems as a SIP Client.\033[0m")
-      utilities.writeFile(options.ip_list, target + ";" + user_agent + ";SIP Client" + "\n")
+      utilities.writeFile(options.ip_list, target + ";" + user_agent + ";SIP Server" + "\n")
+      removeDuplicateLines(options.ip_list)
+
+
+# removes any duplicate line in `path`
+def removeDuplicateLines(path):
+   with open(path, 'r+') as f:
+      unique = list(dict.fromkeys([line for line in f.readlines()]))
+      f.seek(0)
+      for line in unique: f.write(line)
+      f.truncate()
 
 
 ### Thread objects and their functions ###
