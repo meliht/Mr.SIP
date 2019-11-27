@@ -235,7 +235,7 @@ def networkScanner():
       counter = 0
 
       for threadName in threadList:
-         thread = ThreadSIPNES(threadID, threadName, options.dest_port, client_ip)
+         thread = ThreadSIPNES(threadID, threadName, options.dos_method, options.dest_port, client_ip)
          thread.start()  # invoke the 'run()' function in the class
          threads.append(thread)
          threadID += 1
@@ -398,11 +398,12 @@ def printResult(result,target):
 
 # Thread object for SIP-NES function
 class ThreadSIPNES(threading.Thread):
-   def __init__(self, threadID, name, dest_port, client_ip):
+   def __init__(self, threadID, name, option, dest_port, client_ip):
       threading.Thread.__init__(self)  # inherit the constructor
       self.threadID = threadID
       self.name = name
 
+      self.option = option
       self.dest_port = dest_port
       self.client_ip = client_ip
    
@@ -418,7 +419,7 @@ class ThreadSIPNES(threading.Thread):
             host = workQueue.get()  # get host
             queueLock.release()  # when host is acquired, release the lock
 
-            sip = sip_packet.sip_packet("options", host, self.dest_port, self.client_ip, protocol="socket", wait=True)  # set options
+            sip = sip_packet.sip_packet(self.option, host, self.dest_port, self.client_ip, protocol="socket", wait=True)  # set options
             result = sip.generate_packet()  # generate packet.
 
             if result["status"]: 
