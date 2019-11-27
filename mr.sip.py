@@ -118,7 +118,7 @@ parser.add_option_group(group_DAS_usage)
 group = OptionGroup(parser, "Parameters")
 group.add_option("--tn", "--target-network", dest="target_network", help="Target network range to scan.")
 group.add_option("-i", "--ip-save-list", dest="ip_list", default="ip_list.txt", help="Output file location to save live IP address.\n Default location is inside application folder ip_list.txt.")
-group.add_option("--dm", "--dos-method", dest="dos_method", default="invite", help="DoS packet type selection. options, invite, register, sip-invite, subscribe, cancel, bye or other custom method file name.")
+group.add_option("--dm", "--dos-method", dest="dos_method", default="register", help="DoS packet type selection. options, invite, register, sip-invite, subscribe, cancel, bye or other custom method file name.")
 group.add_option("-c", "--count", type="int", dest="counter", default="99999999", help="Counter for how many messages to send. If not specified, default is flood.")
 group.add_option("-l", "--lib", action="store_true", dest="library", default=False, help="Use Socket library (no spoofing), default is Scapy")
 group.add_option("--di", "--destination-ip", dest="dest_ip", help="Destination SIP server IP address.")
@@ -311,7 +311,7 @@ def sipEnumerator():
    counter = 0  # extension counter
 
    for threadName in threadList:
-      thread = ThreadSIPENUM(threadID, threadName, content[0].strip(), options.dest_port, client_ip)
+      thread = ThreadSIPENUM(threadID, threadName, options.dos_method, content[0].strip(), options.dest_port, client_ip)
       thread.start()  # invoke the 'run()' function in the class
       threads.append(thread)
       threadID += 1
@@ -432,11 +432,12 @@ class ThreadSIPNES(threading.Thread):
 
 # Thread object for SIP-ENUM
 class ThreadSIPENUM(threading.Thread):
-   def __init__(self, threadID, name, serverIP, dest_port, client_ip):
+   def __init__(self, threadID, name, option, serverIP, dest_port, client_ip):
       threading.Thread.__init__(self)
       self.threadID = threadID
       self.name = name
 
+      self.option = option
       self.serverIP = serverIP
       self.dest_port = dest_port
       self.client_ip = client_ip
@@ -453,7 +454,7 @@ class ThreadSIPENUM(threading.Thread):
             user_id = workQueue.get()  # get host
             queueLock.release()  # when host is acquired, release the lock
 
-            sip = sip_packet.sip_packet("register", self.serverIP, self.dest_port, self.client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
+            sip = sip_packet.sip_packet(self.option, self.serverIP, self.dest_port, self.client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
             result = sip.generate_packet()
             
             if result["status"]:
