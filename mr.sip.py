@@ -83,6 +83,7 @@ logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import conf, IP
 import sip_packet, utilities
 import pyfiglet
+import itertools
 
 """
 #####################################################################################################
@@ -104,7 +105,7 @@ parser.add_option("--ds", "--dos-simulator", action="store_true", dest="dos_simu
 
 NES_USAGE = "python mr.sip.py --ns --tn <IP/IP-range/network> --dp=5060"
 ENUM_USAGE = "python mr.sip.py --se --dp=5060 --fu=fromUser.txt"
-DAS_USAGE = "python mr.sip.py --ds -dm=invite -c <packet_count> --di=<target_server_IP> --dp=<server_port> -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt"
+DAS_USAGE = "python mr.sip.py --ds -dm=invite -c <packet_count> --tn=<target_server_IP> --dp=<server_port> -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt"
 
 group_NES_usage = OptionGroup(parser, "SIP-NES Usage", NES_USAGE) # "IP range format: 192.168.1.10-192.168.1.20. Output also written to ip_list.txt."
 group_ENUM_usage = OptionGroup(parser, "SIP-ENUM Usage", ENUM_USAGE) # "It reads from ip_list.txt. You can also give the target by using --di=<target_server_IP>."        
@@ -117,21 +118,22 @@ parser.add_option_group(group_DAS_usage)
 
 group = OptionGroup(parser, "Parameters")
 group.add_option("--tn", "--target-network", dest="target_network", help="Target network range to scan.")
-group.add_option("-i", "--ip-save-list", dest="ip_list", default="ip_list.txt", help="Output file location to save live IP address.\n Default location is inside application folder ip_list.txt.")
-group.add_option("--dm", "--dos-method", dest="dos_method", default="invite", help="DoS packet type selection. options, invite, register, sip-invite, subscribe, cancel, bye or other custom method file name.")
-group.add_option("-c", "--count", type="int", dest="counter", default="99999999", help="Counter for how many messages to send. If not specified, default is flood.")
-group.add_option("-l", "--lib", action="store_true", dest="library", default=False, help="Use Socket library (no spoofing), default is Scapy")
-group.add_option("--di", "--destination-ip", dest="dest_ip", help="Destination SIP server IP address.")
+group.add_option("--dm", "--dos-method", dest="dos_method", default="register", help="DoS packet type selection. options, invite, register, sip-invite, subscribe, cancel, bye or other custom method file name.")
 group.add_option("--dp", "--destination-port", dest="dest_port", default=5060, help="Destination SIP server port number. Default is 5060.")
-group.add_option("-r", "--random", action="store_true", dest="random", default=False, help="Spoof IP addresses randomly.")
-group.add_option("-m", "--manual", action="store_true", dest="manual", default=False, help="Spoof IP addresses manually. If you choose manual IP usage, you have to specify a IP list via --manual-ip-list parameter.")
-group.add_option("-s", "--subnet", action="store_true", dest="subnet", default=False, help="Spoof IP addresses from subnet.")
 group.add_option("--to", "--to-user", dest="to_user", default="toUser.txt", help="To User list file location. Default is toUser.txt.")
 group.add_option("--fu", "--from-user", dest="from_user", default="fromUser.txt", help="From User list file location. Default is fromUser.txt.")
 group.add_option("--su", "--sp-user", dest="sp_user", default="spUser.txt", help="SP User list file location. Default is spUser.txt.")
 group.add_option("--ua", "--user-agent", dest="user_agent", default="userAgent.txt", help="User Agent list file location. Default is userAgent.txt.")
 group.add_option("--il", "--manual-ip-list", dest="manual_ip_list", help="IP list file location.")
 group.add_option("--if", "--interface", dest="interface", help="Interface to work on.")
+group.add_option("-i", "--ip-save-list", dest="ip_list", default="ip_list.txt", help="Output file location to save live IP address.\n Default location is inside application folder ip_list.txt.")
+group.add_option("-c", "--count", type="int", dest="counter", default="99999999", help="Counter for how many messages to send. If not specified, default is flood.")
+group.add_option("-l", "--lib", action="store_true", dest="library", default=False, help="Use Socket library (no spoofing), default is Scapy")
+# group.add_option("--di", "--destination-ip", dest="dest_ip", help="Destination SIP server IP address.")
+group.add_option("-r", "--random", action="store_true", dest="random", default=False, help="Spoof IP addresses randomly.")
+group.add_option("-m", "--manual", action="store_true", dest="manual", default=False, help="Spoof IP addresses manually. If you choose manual IP usage, you have to specify a IP list via --manual-ip-list parameter.")
+group.add_option("-s", "--subnet", action="store_true", dest="subnet", default=False, help="Spoof IP addresses from subnet.")
+
 parser.add_option_group(group)
     
 (options, args) = parser.parse_args()
@@ -157,12 +159,12 @@ exitFlag = 0
 # threadList = ['thread-1', 'thread-2']
 # threadList = ['thread-1', 'thread-2', 'thread-3']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4']
-threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5']
+# threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7', 'thread-8']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7', 'thread-8', 'thread-9']
-# threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7', 'thread-8', 'thread-9', 'thread-10']
+threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7', 'thread-8', 'thread-9', 'thread-10']
 # threadList = ['thread-1', 'thread-2', 'thread-3', 'thread-4', 'thread-5', 'thread-6', 'thread-7', 'thread-8', 'thread-9', 'thread-10','thread-11']
 
    
@@ -235,7 +237,7 @@ def networkScanner():
       counter = 0
 
       for threadName in threadList:
-         thread = ThreadSIPNES(threadID, threadName, options.dest_port, client_ip)
+         thread = ThreadSIPNES(threadID, threadName, options.dos_method, options.dest_port, client_ip)
          thread.start()  # invoke the 'run()' function in the class
          threads.append(thread)
          threadID += 1
@@ -297,35 +299,68 @@ def sipEnumerator():
       print ("\033[1;31;40m Error: From user not found. Please enter a valid From User list.\033[0m")
       exit(0)
 
-   content = utilities.readFile("ip_list.txt").split(";")
-   if len(content[0]) <= 1:
-      print ("\033[1;31;40m Error: Target IP not found. Please run SIP-NES first for detect the target IPs.\033[0m")
-      exit(0)
-   content = content[0].split(";")
+   if options.target_network:
+      target_networks = options.target_network
+   else:
+      content = utilities.readFile("ip_list.txt").split(";")
+      if len(content[0]) <= 1:
+         print ("\033[1;31;40m Error: Target IP not found. Please run SIP-NES first for detect the target IPs.\033[0m")
+         exit(0)
+
+      with open('ip_list.txt', 'r') as f: target_networks = [line.split(';')[0] for line in f.readlines()] 
+
+   # combination of all target_networks with user_IDs
+   target_network__user_id = [(target_network, user_id) for target_network, user_id in itertools.product(target_networks, user_list)]
 
 
    global threadID
    global counter
    global exitFlag
-
+   global workQueue
    counter = 0  # extension counter
 
+   workQueues = []  # a list of queues, in case there will be thousands of jobs to do... (See below)
+   for c, tn_ui in enumerate(target_network__user_id):
+      if c % len(user_list) == 0:
+         workQueues.append(queue.Queue())
+         workQueues[int(c // len(user_list))].put(tn_ui)
+      else:
+         workQueues[int(c // len(user_list))].put(tn_ui)
+
+
    for threadName in threadList:
-      thread = ThreadSIPENUM(threadID, threadName, content[0].strip(), options.dest_port, client_ip)
+      thread = ThreadSIPENUM(threadID, threadName, options.dos_method, options.dest_port, client_ip)
       thread.start()  # invoke the 'run()' function in the class
       threads.append(thread)
       threadID += 1
-   
-   for user_id in user_list:
-      workQueue.put(user_id)
 
-   # finish up the work
-   while not workQueue.empty(): pass  # Wait for queue to empty
-   exitFlag = 1  # Notify threads it's time to exit
-   for t in threads: t.join()  # Wait for all threads to complete
 
+   _prompt = "{} user IDs will be checked for target network {}.\nDo you want to continue checking ({}/{} target networks completed)? (y/n) "
+   for c, wQ in enumerate(workQueues):
+      if c < len(target_networks) - 1:
+         isContinue = raw_input(_prompt.format(len(user_list), target_networks[c], c+1, len(target_networks)))
+      elif c == len(target_networks) - 1:
+         isContinue = raw_input(_prompt.format(len(user_list), target_networks[c], c+1, len(target_networks)))
+
+      if isContinue == 'y':
+         workQueue = wQ
+         while not workQueue.empty(): pass # Wait for queue to empty
+      elif isContinue == 'n':
+         exitFlag = 1
+         print("Terminating by user input")
+         for t in threads: t.join()  # Wait for all threads to complete
+         break
+      else:
+         exitFlag = 1 
+         print("Answer not understood. Please answer y/n.")
+         for t in threads: t.join()  
+         exit(0)
+
+   exitFlag = 1  
+   for t in threads: t.join()  
 
    print ("[!] " + str(counter) + " SIP Extension Found.")
+             
              
 # SIP-DAS: SIP-based DoS Attack Simulator
 def dosSmilator():
@@ -346,7 +381,7 @@ def dosSmilator():
          spUser = random.choice([line.rstrip('\n') for line in open(options.sp_user)])
          userAgent = random.choice([line.rstrip('\n') for line in open(options.user_agent)])
          
-         pkt= IP(dst=options.dest_ip)
+         pkt= IP(dst=options.target_network)
          client = pkt.src
          
          if options.random and not options.library:
@@ -359,7 +394,7 @@ def dosSmilator():
          if options.library:
                send_protocol = "socket"
                
-         sip = sip_packet.sip_packet(str(options.dos_method), str(options.dest_ip), str(options.dest_port), str(client), str(fromUser), str(toUser), str(userAgent), str(spUser), send_protocol)
+         sip = sip_packet.sip_packet(str(options.dos_method), str(options.target_network), str(options.dest_port), str(client), str(fromUser), str(toUser), str(userAgent), str(spUser), send_protocol)
          sip.generate_packet()
          i += 1
          utilities.printProgressBar(i,int(options.counter),"Progress: ")
@@ -368,7 +403,7 @@ def dosSmilator():
          print ("Exiting traffic generation...")
          raise SystemExit
    
-   print ("\033[31m[!] DoS simulation finished and {0} packet sent to {1}...\033[0m".format(str(i),str(options.dest_ip)))
+   print ("\033[31m[!] DoS simulation finished and {0} packet sent to {1}...\033[0m".format(str(i),str(options.target_network)))
    utilities.promisc("off",conf.iface)
 
 
@@ -389,20 +424,32 @@ def printResult(result,target):
    if utilities.defineTargetType(user_agent) == "Server":
       print ("\033[1;32m[+] New live IP found on " + target + ", It seems as a SIP Server.\033[0m")
       utilities.writeFile(options.ip_list, target + ";" + user_agent + ";SIP Server" + "\n")
-   else :
+      removeDuplicateLines(options.ip_list)
+   else:
       print ("\033[1;32m[+] New live IP found on " + target + ", It seems as a SIP Client.\033[0m")
-      utilities.writeFile(options.ip_list, target + ";" + user_agent + ";SIP Client" + "\n")
+      utilities.writeFile(options.ip_list, target + ";" + user_agent + ";SIP Server" + "\n")
+      removeDuplicateLines(options.ip_list)
+
+
+# removes any duplicate line in `path`
+def removeDuplicateLines(path):
+   with open(path, 'r+') as f:
+      unique = list(dict.fromkeys([line for line in f.readlines()]))
+      f.seek(0)
+      for line in unique: f.write(line)
+      f.truncate()
 
 
 ### Thread objects and their functions ###
 
 # Thread object for SIP-NES function
 class ThreadSIPNES(threading.Thread):
-   def __init__(self, threadID, name, dest_port, client_ip):
+   def __init__(self, threadID, name, option, dest_port, client_ip):
       threading.Thread.__init__(self)  # inherit the constructor
       self.threadID = threadID
       self.name = name
 
+      self.option = option
       self.dest_port = dest_port
       self.client_ip = client_ip
    
@@ -418,7 +465,7 @@ class ThreadSIPNES(threading.Thread):
             host = workQueue.get()  # get host
             queueLock.release()  # when host is acquired, release the lock
 
-            sip = sip_packet.sip_packet("options", host, self.dest_port, self.client_ip, protocol="socket", wait=True)  # set options
+            sip = sip_packet.sip_packet(self.option, host, self.dest_port, self.client_ip, protocol="socket", wait=True)  # set options
             result = sip.generate_packet()  # generate packet.
 
             if result["status"]: 
@@ -429,15 +476,14 @@ class ThreadSIPNES(threading.Thread):
             queueLock.release()  # when no jobs exist, release the lock
 
 
-
 # Thread object for SIP-ENUM
 class ThreadSIPENUM(threading.Thread):
-   def __init__(self, threadID, name, serverIP, dest_port, client_ip):
+   def __init__(self, threadID, name, option, dest_port, client_ip):
       threading.Thread.__init__(self)
       self.threadID = threadID
       self.name = name
 
-      self.serverIP = serverIP
+      self.option = option
       self.dest_port = dest_port
       self.client_ip = client_ip
 
@@ -450,10 +496,13 @@ class ThreadSIPENUM(threading.Thread):
       while not exitFlag:
          queueLock.acquire()
          if not workQueue.empty():
-            user_id = workQueue.get()  # get host
+            tn_ui = workQueue.get()  # get host
             queueLock.release()  # when host is acquired, release the lock
 
-            sip = sip_packet.sip_packet("register", self.serverIP, self.dest_port, self.client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
+            target_network = tn_ui[0]
+            user_id = tn_ui[1]
+
+            sip = sip_packet.sip_packet(self.option, target_network, self.dest_port, self.client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
             result = sip.generate_packet()
             
             if result["status"]:
