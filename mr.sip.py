@@ -172,7 +172,7 @@ def networkScanner():
    client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
    client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask']
 
-   printInital("Network scan", conf.iface, client_ip)
+   printInital("Network scan :", conf.iface, client_ip)
 
    dos_method = options.dos_method if options.dos_method else "options"
 

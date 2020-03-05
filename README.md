@@ -65,10 +65,10 @@ SIP-NES usage:
 ./mr.sip.py --ns --tn <target_network_range> --dp=5060
 ./mr.sip.py --ns --tn <target_network_address> --dp=5060 
 
-NOT-1: <target_network_range> should be like 192.168.1.10-192.168.1.20
-NOT-2: <target_network> should be like 192.168.1.0
-NOT-3: You can specify the output by -i <output_file_name>. By default the output will be written to ip_list.txt file which is already exists in the repo. SIP-ENUM uses that file as an input. 
-NOT-3: Default destionation port 5060, if not given. 
+NOTE-1: <target_network_range> should be like 192.168.1.10-192.168.1.20
+NOTE-2: <target_network> should be like 192.168.1.0
+NOTE-3: You can specify the output by -i <output_file_name>. By default the output will be written to ip_list.txt file which is already exists in the repo. SIP-ENUM uses that file as an input. 
+NOTE-3: Default destionation port 5060, if not given. 
 
 Scan output: 
 
