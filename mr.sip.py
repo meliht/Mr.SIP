@@ -17,7 +17,7 @@
 
 __author__ = "Melih Tas"
 __copyright__ = "Copyrgiht 2019"
-__credits__ = ["Caner", "Onur"]
+__credits__ = ["Caner", "Onur","Faruk"]
 __license__ = "GPL"
 __version__ = "1.1.0"
 __maintainer__ = "Melih Tas"
@@ -42,17 +42,19 @@ import itertools
         ################################   Usage Options   ################################ 
 #####################################################################################################
 """
-usage = "usage: %prog [--ns|--ds|--se] [PARAMETERS]"
+usage = "usage: %prog [--ns|--ds|--se|--sn] [PARAMETERS]"
 parser = OptionParser(usage=usage)# SIP-NES: SIP-based Network Scanner 
 
 
 NES_HELP = 'SIP-NES is a network scanner. It needs the IP range or IP subnet information as input. It sends SIP OPTIONS message to each IP addresses in the subnet/range and according to the responses, it provides the output of the potential SIP clients and servers on that subnet.'
 ENUM_HELP = 'SIP-ENUM is an enumerator. It needs the output of SIP-NES and also pre-defined SIP usernames. It generates SIP REGISTER messages and sends them to all SIP components and tries to find the valid SIP users on the target network. You can write the output in a file.'
 DAS_HELP = 'SIP-DAS is a DoS/DDoS attack simulator. It comprises four components: powerful spoofed IP address generator, SIP message generator, message sender and response parser. It needs the outputs of SIP-NES and SIP-ENUM along with some pre-defined files.'
+SNIFF_HELP = 'SIP-SNIFF is responsible for MITM attack and capturing VoIP packets. It use ARP,DHCP,ICMP procosol to forward SIP traffic over UDV/TCP.'
 
 parser.add_option("--ns", "--network-scanner", action="store_true", dest="network_scanner", default=False, help=NES_HELP) # SIP-ENUM: SIP-based Enumerator 
 parser.add_option("--se", "--sip-enumerator", action="store_true", dest="sip_enumerator", default=False, help=ENUM_HELP)# SIP-DAS: SIP-based DoS Attack Simulator 
 parser.add_option("--ds", "--dos-simulator", action="store_true", dest="dos_simulator", default=False, help=DAS_HELP)
+parser.add_option("--sn", "--sniff", action="store_true", dest="sip_sniffer", default=False, help=SNIFF_HELP) #SIP-SNIFF: MITM attack simulator.
 
 
 NES_USAGE = """python2 mr.sip.py --if=<interface> --tc=<thread_count> --ns --tn <target_IP> --dp=<server_port>  
@@ -68,13 +70,20 @@ python2 mr.sip.py --if=<interface> --ds -dm=invite -c <package_count> --tn=<targ
 python2 mr.sip.py --if=<interface> --ds -dm=invite -c <package_count> --tn=<target_IP> --dp=<server_port> -m --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt --il=ip_list.txt 
 """
 
+SNIFF_USAGE = """
+python2 mr.sip.py --if=<interface> --mm=ARP --tn=<target_IP> -g=<gateway_IP> --dp=5060 -o=output.pcap
+python2 mr.sip.py --if=<interface> --mm=DHCP --br=<broadcast_IP> --de=<DHCP_IP_END> --ds=<DHCP_IP_START> --dn=<DNS_IP> --nm=<NETMASK_IP> fd=<fake_DHCP_server_IP> -g=<gateway_IP> --dp=5060 -o=output.pcap
+"""
+
 group_NES_usage = OptionGroup(parser, "SIP-NES Usage", NES_USAGE) # "IP range format: 192.168.1.10-192.168.1.20. Output also written to ip_list.txt."
 group_ENUM_usage = OptionGroup(parser, "SIP-ENUM Usage", ENUM_USAGE) # "It reads from ip_list.txt. You can also give the target by using --di=<target_server_IP>."        
 group_DAS_usage = OptionGroup(parser, "SIP-DAS Usage", DAS_USAGE) # "-r means random, -s is subnet -m is manual. Default uses scapy library, for socket library, use with -l, however socket library doesn't support IP spoofing."
+group_SNIFF_usage = OptionGroup(parser, "SIP-SNIFF Usage", SNIFF_USAGE) # "it creates a new interface for IP requests to DHCP and fake DHCP server. " 
 
 parser.add_option_group(group_NES_usage)
 parser.add_option_group(group_ENUM_usage)
 parser.add_option_group(group_DAS_usage)
+parser.add_option_group(group_SNIFF_usage)
 
 
 group = OptionGroup(parser, "Parameters")
@@ -94,6 +103,15 @@ group.add_option("-l", "--lib", action="store_true", dest="library", default=Fal
 group.add_option("-r", "--random", action="store_true", dest="random", default=False, help="Spoof IP addresses randomly.")
 group.add_option("-m", "--manual", action="store_true", dest="manual", default=False, help="Spoof IP addresses manually. If you choose manually, you have to specify an IP list via --il parameter.")
 group.add_option("-s", "--subnet", action="store_true", dest="subnet", default=False, help="Spoof IP addresses from the same subnet.")
+group.add_option("--mm", "--mitm-method", default=False, help="MITM method type selection. ARP,DHCP,ICMP")
+group.add_option("-g", "--gateway", default=False, help="it required to poison ARP table of router")
+group.add_option("-o", "--output", default=False, help="pcap file to store captured traffic.")
+group.add_option("--br", "--broadcast", help="Broadcast IP address for Fake DHCP server")
+group.add_option("--de", "--ipend", help="The last IP to give out")
+group.add_option("--ds", "--ipstart", help="The first IP to give out")
+group.add_option("--dn", "--dnsip", help="The DNS server IP address")
+group.add_option("--nm", "--netmask", help="The netmask of local subnet")
+group.add_option("--fd", "--dhcpip", help="The IP of the fake DHCP server")
 
 parser.add_option_group(group)
     
@@ -146,7 +164,7 @@ def main():
   | |/ _ \ / _ \| |
   | | (_) | (_) | |
   |_|\___/ \___/|_|+ \033[1m\033[91m ~ By Melih Tas (SN)\n\033[0m
-   """ + "Greetz ~ \033[1m\033[94m Caner \033[1m\033[93m Onur \033[1m\033[95m Nesli \n\033[0m"
+   """ + "Greetz ~ \033[1m\033[94m 	Caner \033[1m\033[93m Onur \033[1m\033[95m Nesli \033[1m\033[96m Faruk \n"
                    
    print (banner)
    if options.interface is not None:
