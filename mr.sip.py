@@ -36,8 +36,6 @@ from scapy.all import conf, IP
 import sip_packet, utilities
 import pyfiglet
 import itertools
-import socket, sys
-from struct import *
 
 """
 #####################################################################################################
@@ -74,7 +72,7 @@ python2 mr.sip.py --if=<interface> --ds -dm=invite -c <package_count> --tn=<targ
 
 SNIFF_USAGE = """
 python2 mr.sip.py --if=<interface> --mm=ARP --tn=<target_IP> -g=<gateway_IP> --dp=5060 -o=output.pcap
-python2 mr.sip.py --if=<interface> --mm=DHCP --br=<broadcast_IP> --ie=<DHCP_IP_END> --is=<DHCP_IP_START> --dn=<DNS_IP> --nm=<NETMASK_IP> fd=<fake_DHCP_server_IP> -g=<gateway_IP> --dp=5060 -o=output.pcap
+python2 mr.sip.py --if=<interface> --mm=DHCP --br=<broadcast_IP> --de=<DHCP_IP_END> --ds=<DHCP_IP_START> --dn=<DNS_IP> --nm=<NETMASK_IP> fd=<fake_DHCP_server_IP> -g=<gateway_IP> --dp=5060 -o=output.pcap
 """
 
 group_NES_usage = OptionGroup(parser, "SIP-NES Usage", NES_USAGE) # "IP range format: 192.168.1.10-192.168.1.20. Output also written to ip_list.txt."
@@ -109,8 +107,8 @@ group.add_option("--mm", "--mitm-method", default=False, help="MITM method type 
 group.add_option("-g", "--gateway", default=False, help="it required to poison ARP table of router")
 group.add_option("-o", "--output", default=False, help="pcap file to store captured traffic.")
 group.add_option("--br", "--broadcast", help="Broadcast IP address for Fake DHCP server")
-group.add_option("--ie", "--ipend", help="The last IP to give out")
-group.add_option("--is", "--ipstart", help="The first IP to give out")
+group.add_option("--de", "--ipend", help="The last IP to give out")
+group.add_option("--ds", "--ipstart", help="The first IP to give out")
 group.add_option("--dn", "--dnsip", help="The DNS server IP address")
 group.add_option("--nm", "--netmask", help="The netmask of local subnet")
 group.add_option("--fd", "--dhcpip", help="The IP of the fake DHCP server")
@@ -180,8 +178,6 @@ def main():
       dosSmilator()
    elif options.sip_enumerator:
       sipEnumerator()
-   elif options.sip_sniffer:
-      sipSniff()
 
    e = time.time()
    print ("time taken: {}".format(e-s))
@@ -323,7 +319,7 @@ def sipEnumerator():
              
 # SIP-DAS: SIP-based DoS Attack Simulator
 def dosSmilator():
-   cconf.verb = 0
+   conf.verb = 0
    
    client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
    client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask']
@@ -366,134 +362,6 @@ def dosSmilator():
    
    print ("\033[31m[!] DoS simulation finished and {0} packet sent to {1}...\033[0m".format(str(i),str(options.target_network)))
    utilities.promisc("off",conf.iface)
-
-
-# SIP-SNIFF: MITM attack simulator and sniffer
-def sipSniff():
-	#create a AF_PACKET type raw socket (thats basically packet level)
-	#define ETH_P_ALL    0x0003          /* Every packet (be careful!!!) */
-	try:
-		s = socket.socket( socket.AF_PACKET , socket.SOCK_RAW , socket.ntohs(0x0003))
-	except socket.error , msg:
-		print 'Socket could not be created. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
-		sys.exit()
-
-	# receive a packet
-	while True:
-		packet = s.recvfrom(65565)
-		
-		#packet string from tuple
-		packet = packet[0]
-		
-		#parse ethernet header
-		eth_length = 14
-		
-		eth_header = packet[:eth_length]
-		eth = unpack('!6s6sH' , eth_header)
-		eth_protocol = socket.ntohs(eth[2])
-		print 'Destination MAC : ' + eth_addr(packet[0:6]) + ' Source MAC : ' + eth_addr(packet[6:12]) + ' Protocol : ' + str(eth_protocol)
-
-		#Parse IP packets, IP Protocol number = 8
-		if eth_protocol == 8 :
-			#Parse IP header
-			#take first 20 characters for the ip header
-			ip_header = packet[eth_length:20+eth_length]
-			
-			#now unpack them :)
-			iph = unpack('!BBHHHBBH4s4s' , ip_header)
-
-			version_ihl = iph[0]
-			version = version_ihl >> 4
-			ihl = version_ihl & 0xF
-
-			iph_length = ihl * 4
-
-			ttl = iph[5]
-			protocol = iph[6]
-			s_addr = socket.inet_ntoa(iph[8]);
-			d_addr = socket.inet_ntoa(iph[9]);
-
-			print 'Version : ' + str(version) + ' IP Header Length : ' + str(ihl) + ' TTL : ' + str(ttl) + ' Protocol : ' + str(protocol) + ' Source Address : ' + str(s_addr) + ' Destination Address : ' + str(d_addr)
-
-			#TCP protocol
-			if protocol == 6 :
-				t = iph_length + eth_length
-				tcp_header = packet[t:t+20]
-
-				#now unpack them :)
-				tcph = unpack('!HHLLBBHHH' , tcp_header)
-				
-				source_port = tcph[0]
-				dest_port = tcph[1]
-				sequence = tcph[2]
-				acknowledgement = tcph[3]
-				doff_reserved = tcph[4]
-				tcph_length = doff_reserved >> 4
-				
-				print 'Source Port : ' + str(source_port) + ' Dest Port : ' + str(dest_port) + ' Sequence Number : ' + str(sequence) + ' Acknowledgement : ' + str(acknowledgement) + ' TCP header length : ' + str(tcph_length)
-				
-				h_size = eth_length + iph_length + tcph_length * 4
-				data_size = len(packet) - h_size
-				
-				#get data from the packet
-				data = packet[h_size:]
-				
-				print 'Data : ' + data
-
-			#ICMP Packets
-			elif protocol == 1 :
-				u = iph_length + eth_length
-				icmph_length = 4
-				icmp_header = packet[u:u+4]
-
-				#now unpack them :)
-				icmph = unpack('!BBH' , icmp_header)
-				
-				icmp_type = icmph[0]
-				code = icmph[1]
-				checksum = icmph[2]
-				
-				print 'Type : ' + str(icmp_type) + ' Code : ' + str(code) + ' Checksum : ' + str(checksum)
-				
-				h_size = eth_length + iph_length + icmph_length
-				data_size = len(packet) - h_size
-				
-				#get data from the packet
-				data = packet[h_size:]
-				
-				print 'Data : ' + data
-
-			#UDP packets
-			elif protocol == 17 :
-				u = iph_length + eth_length
-				udph_length = 8
-				udp_header = packet[u:u+8]
-
-				#now unpack them :)
-				udph = unpack('!HHHH' , udp_header)
-				
-				source_port = udph[0]
-				dest_port = udph[1]
-				length = udph[2]
-				checksum = udph[3]
-				
-				print 'Source Port : ' + str(source_port) + ' Dest Port : ' + str(dest_port) + ' Length : ' + str(length) + ' Checksum : ' + str(checksum)
-				
-				h_size = eth_length + iph_length + udph_length
-				data_size = len(packet) - h_size
-				
-				#get data from the packet
-				data = packet[h_size:]
-				
-				print 'Data : ' + data
-
-			#some other IP packet like IGMP
-			else :
-				print 'Protocol other than TCP/UDP/ICMP'
-				
-			print
-
-
 
 
 
