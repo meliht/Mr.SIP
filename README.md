@@ -21,8 +21,6 @@ SIP-NES is a network scanner. It needs the IP range or IP subnet information as 
 SIP-ENUM is a enumerator. It needs the output of SIP-NES and also pre-defined SIP usernames. It generates SIP REGISTER messages and sends them to all SIP components and try to find the valid SIP users on the target network. You can write the output in a file.
 
 SIP-DAS is a DoS/DDoS attack simulator. It comprises four components: powerful spoofed IP address generator, SIP message generator, message sender and response parser. It needs the outputs of SIP-NES and SIP-ENUM along with some pre-defined files.
-
-SIP-SNIFF is responsible for MITM attack and capturing VoIP packets. It use ARP,DHCP,ICMP procosol to forward SIP traffic over UDV/TCP.
  
 IP spoofing generator has 3 different options for spoofed IP address generation, i.e., manual, random and by selecting spoofed IP address from subnet. IP addresses could be specified manually or generated randomly. Furthermore, in order to bypass URPF filtering, which is used to block IP addresses that do not belong to the subnet from passing onto the Internet, we designed a spoofed IP address generation module. Spoofed IP generation module calculated the subnet used and randomly generated spoofed IP addresses that appeared to come from within the subnet.
 
@@ -55,7 +53,6 @@ Install using pip:
 pip install netifaces
 pip install ipaddress
 pip install pyfiglet 
-pip install pyshark
 
 Install using apt:
 

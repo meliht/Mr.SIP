@@ -2,4 +2,3 @@ scapy
 netifaces
 ipaddress
 pyfiglet
-pyshark
