@@ -1,4 +1,3 @@
-
 [![Black Hat Arsenal](https://github.com/meliht/Mr.SIP/blob/master/BlackHatArsenalEU2019bagdge.svg)](https://www.blackhat.com/eu-19/arsenal/schedule/#mrsip-sip-based-audit--attack-tool-18190)
 [![Black Hat Arsenal](https://github.com/meliht/Mr.SIP/blob/master/BlackHatArsenalUSA2019bagdge.svg)](https://www.blackhat.com/us-19/arsenal/schedule/index.html#mrsip-sip-based-audit--attack-tool-16866)
 [![Black Hat Arsenal](https://github.com/meliht/Mr.SIP/blob/master/BlackHatArsenalAsia2019bagdge.svg)](https://www.blackhat.com/asia-19/arsenal/schedule/index.html#mrsip-sip-based-audit-and-attack-tool-14381)
@@ -50,27 +49,36 @@ SIP-CRACK is a password cracker. Again, it uses the same sniffing mechanism and 
 
 Install using pip:
 
+```
 pip install netifaces
 pip install ipaddress
 pip install pyfiglet 
+```
+
 
 Install using apt:
 
+```
 apt-get install python-scapy
+```
+
 
 
 # Usages Examples: 
 
 SIP-NES usage:
 
-./mr.sip.py --ns --tn <target_ip> --dp=5060  
-./mr.sip.py --ns --tn <target_network_range> --dp=5060
-./mr.sip.py --ns --tn <target_network_address> --dp=5060 
+```
+./mr.sip.py --nes --tn <target_ip> --dp=5060  
+./mr.sip.py --nes --tn <target_network_range> --dp=5060
+./mr.sip.py --nes --tn <target_network_address> --dp=5060 
+```
 
-NOTE-1: <target_network_range> should be like 192.168.1.10-192.168.1.20
-NOTE-2: <target_network> should be like 192.168.1.0
-NOTE-3: You can specify the output by -i <output_file_name>. By default the output will be written to ip_list.txt file which is already exists in the repo. SIP-ENUM uses that file as an input. 
-NOTE-3: Default destionation port 5060, if not given. 
+
+NOTE-1: _<target_network_range>_ should be like `192.168.1.10-192.168.1.20` \
+NOTE-2: _<target_network>_ should be like `192.168.1.0` \
+NOTE-3: You can specify the output by `-i <output_file_name>`. By default the output will be written to _ip_list.txt_ file which is already exists in the repo. _SIP-ENUM_ uses that file as an input. \
+NOTE-4: Default destination is _port 5060_, if not given. 
 
 Scan output: 
 
@@ -78,13 +86,13 @@ Scan output:
 
 Call flow created by SIP-NES on the target SIP server:
 
-sudo ngrep -W byline -d eth0 port 5060 
+```sudo ngrep -W byline -d eth0 port 5060 ```
 
 ![Alt text](/screenshots/SIP-NES-messages.png?raw=true "Call flow created by SIP-NES")
 
 SIP-ENUM usage:
 
-./mr.sip.py --se --dp=5060 --fu=fromUser.txt
+```./mr.sip.py --enum --dp=5060 --fu=fromUser.txt```
 
 NOT-1: SIP-ENUM uses ip_list.txt file as an input. 
 
@@ -94,23 +102,23 @@ Scan output:
 
 Call flow created by SIP-NES on the target SIP server:
 
-sudo ngrep -W byline -d eth0 port 5060 
+```sudo ngrep -W byline -d eth0 port 5060 ```
 
 ![Alt text](/screenshots/SIP-ENUM-messages.png?raw=true "Call flow created by SIP-ENUM")
 
 SIP-DAS usage:
 
-by using socket library (but doesn't support IP spoofing) \
+by using socket library (but doesn't support IP spoofing)
 
-./mr.sip.py --ds -dm=<sip_method_name> -c <number_of_packets> --di=<target_IP_address> --dp=5060 -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt -l
+```./mr.sip.py --das -mt=<sip_method_name> -c <number_of_packets> --tn=<target_IP_address> --dp=5060 -r --to=toUser.txt --from=fromUser.txt --ua=userAgent.txt --su=spUser.txt -l```
 
 by using scapy library (ip spoofing is supported) 
 
-./mr.sip.py --ds -dm=invite -c <number_of_packets> --di=<target_IP_address> --dp=<server_port> -r --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt 
+```./mr.sip.py --das -mt=invite -c <number_of_packets> --tn=<target_IP_address> --dp=<server_port> -r --to=toUser.txt --from=fromUser.txt --ua=userAgent.txt --su=spUser.txt ```
 
-./mr.sip.py --ds -dm=invite -c <number_of_packets> --di=<target_IP_address> --dp=<server_port> -s --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt 
+```./mr.sip.py --das -mt=invite -c <number_of_packets> --tn=<target_IP_address> --dp=<server_port> -s --to=toUser.txt --from=fromUser.txt --ua=userAgent.txt --su=spUser.txt ```
 
-./mr.sip.py --ds -dm=invite -c <number_of_packets> --di=<target_IP_address> --dp=<server_port> -m --to=toUser.txt --fu=fromUser.txt --ua=userAgent.txt --su=spUser.txt --il=ip_list.txt 
+```./mr.sip.py --das -mt=invite -c <number_of_packets> --tn=<target_IP_address> --dp=<server_port> -m --to=toUser.txt --from=fromUser.txt --ua=userAgent.txt --su=spUser.txt --il=ip_list.txt ```
 
 Attack output:
 
@@ -118,11 +126,7 @@ Attack output:
 
 Call flow created by SIP-DAS on the target SIP server: 
 
-sudo ngrep -W byline -d eth0 port 5060 
+```sudo ngrep -W byline -d eth0 port 5060 ```
 
 ![Alt text](/screenshots/SIP-DAS-messages.png?raw=true "Call flow created by SIP-DAS")
-
-
-
-
 
