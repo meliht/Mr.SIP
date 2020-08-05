@@ -14,6 +14,7 @@ from scapy.all import *
 #####################################################################################################
 """
 
+
 class sip_packet:
     """
     [[server_ip]]
@@ -63,7 +64,7 @@ class sip_packet:
     
     @staticmethod
     def get_rand_call_id():
-        prefix = ''.join(random.sample(string.digits + string.lowercase, 27))
+        prefix = ''.join(random.sample(string.digits + string.ascii_lowercase, 27))
         return "{0}{1}".format(str(prefix), str(random.randrange(10000, 99999)))
 
     @staticmethod
@@ -90,16 +91,15 @@ class sip_packet:
                   '[[branch_value]]': str(self.get_rand_branch()),
                   '[[tag_value]]': str(self.get_rand_tag())}
 
-        for key, value in var_dict.items():
+        for key, value in list(var_dict.items()):
             text = text.replace(key, value)
-        return text
+        return text.encode('utf-8')
 
     def generate_packet(self):
         try:
             f = open(os.path.join(self.method_location, "{0}.message".format(self.method)), "r")
             packet_data = f.read()
             packet_data = self.fill_packet_data(packet_data)
-
             if self.protocol == "socket":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 s.settimeout(5)
@@ -109,7 +109,7 @@ class sip_packet:
                 if self.wait:
                     buff,srcaddr = s.recvfrom(8192)
                     s.close()
-                    status = self.getResponse(buff)
+                    status = self.getResponse(buff.decode('utf-8'))
                     return {"status": True, "response": status}
                 else:
                     s.close()
@@ -119,9 +119,9 @@ class sip_packet:
                 pkt = IP(src=self.client_ip, dst=self.server_ip) / UDP(sport=int(self.client_port), dport=int(self.server_port)) / packet_data
                 send(pkt, iface=conf.iface)
                 return {"status": True}
-        except:
+        except Exception as e:
+            # print(e)
             return {"status": False}
-
 
     def getResponse(self, resp):
         import re
@@ -140,21 +140,20 @@ class sip_packet:
             if len(first_line) == 3:
                 version,code,description = first_line
             else:
-                print 'Could not parse the first header line: {0}'.format(first_line)
+                print('Could not parse the first header line: {0}'.format(first_line))
                 return response
             try:
                 response['code'] = int(code)
             except ValueError:
                 return response
-                
-            
+
             response['headers'] = dict()
             for headerline in headers[1:]:
                 nl = ':'
                 if nl in headerline:
                     tmpname,tmpval = headerline.split(nl,1)
                     name = tmpname.lower().strip()
-                    val =  map(lambda x: x.strip(),tmpval.split(','))
+                    val =  [x.strip() for x in tmpval.split(',')]
                 else:
                     name,val = headerline.lower(),None
                 response['headers'][name] = val
