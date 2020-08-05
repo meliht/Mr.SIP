@@ -17,10 +17,8 @@
 
 __author__ = "Melih Tas"
 __copyright__ = "CopyRight 2020"
-__credits__ = ["Caner", "Onur", "Hakki"]
 __license__ = "GPL"
 __version__ = "1.1.0"
-__maintainer__ = "Melih Tas"
 __status__ = "V2"     
 
 """
@@ -146,7 +144,7 @@ def main():
   | |/ _ \ / _ \| |
   | | (_) | (_) | |
   |_|\___/ \___/|_|+ \033[1m\033[91m ~ By Melih Tas (SN)\n\033[0m
-   """ + "Greetz ~ \033[1m\033[94m Caner \033[1m\033[93m Onur \033[1m\033[95m Nesli \n\033[0m" \
+   """ + "Greetz ~ \033[1m\033[94m Caner \033[1m\033[93m Onur \033[1m\033[95m Neslisah \n\033[0m" \
        + "   Maintainer ~ \033[0;32mHakki Riza Kucuk\n\033[0m"
                    
    print (banner)
