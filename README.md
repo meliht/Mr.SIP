@@ -66,15 +66,15 @@ Please give star in our Github, please follow our empty Twitter account for upda
 If you want you get more out of Mr.SIP, check out PRO version ---> https://mrsip.gitlab.io/
 
 ## Mr.SIP Pro Installation
-Mr.SIP is a console based Python tool. In order to run Mr.SIP in your Kali, you need install some python libraries. Please see help and usage for full instructions. 
+Mr.SIP is a console based Python3 tool. In order to run Mr.SIP in your Kali, you need install some python libraries. Please see help and usage for full instructions. 
 
 ```
 pip install -r requirements.txt
 apt-get install python-scapy
 ```
 ```
-python mr.sip.py --help
-python mr.sip.py –usage
+python3 mr.sip.py --help
+python3 mr.sip.py –usage
 ```
 
 ##  Mr.SIP Usages: 
@@ -91,9 +91,9 @@ Default destination port (--dp=) is 5060
 
 **SIP-NES Usage:** 
 ```
-python mr.sip.py --nes --tn=<target_IP> --mt=options --from=<from_extention> --to=<to_extension>
-python mr.sip.py --nes --tn=<target_network_range> --mt=invite --from=<from_extention> --to=<to_extension>
-python mr.sip.py --nes --tn <target_network_address> --mt=subscribe --from=<from_extention> --to=<to_extension>
+python3 mr.sip.py --nes --tn=<target_IP> --mt=options --from=<from_extention> --to=<to_extension>
+python3 mr.sip.py --nes --tn=<target_network_range> --mt=invite --from=<from_extention> --to=<to_extension>
+python3 mr.sip.py --nes --tn <target_network_address> --mt=subscribe --from=<from_extention> --to=<to_extension>
 ```
 
 NOTE-1: _<target_network_range>_ should be like `192.168.1.10-192.168.1.20` \
@@ -110,8 +110,8 @@ NOTE-7: _from_ and _to_ values can be arbitrary extension number.
 
 **SIP-ENUM Usage:** 
 ```
-python mr.sip.py --enum --from=from.txt 
-python mr.sip.py --enum --tn=<target_IP> --from=from.txt
+python3 mr.sip.py --enum --from=from.txt 
+python3 mr.sip.py --enum --tn=<target_IP> --from=from.txt
 ```
 
 NOTE-1: If target network (--tn) is not given, SIP-ENUM uses _ip_list.txt_ file as an input which is output of SIP-NES. \
@@ -126,16 +126,16 @@ NOTE-3: Default message type (--mt) is _subscribe_, if not given.
 **SIP-DAS Usage:** \
 By using scapy library (IP spoofing is supported) 
 ```
-python mr.sip.py --das -mt=invite -c <package_count> --tn=<target_IP> -r 
-python mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -s 
-python mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -m --il=ip_list.txt
+python3 mr.sip.py --das -mt=invite -c <package_count> --tn=<target_IP> -r 
+python3 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -s 
+python3 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -m --il=ip_list.txt
 ```
 
 By using socket library (but doesn't support IP spoofing)
 ```
-python mr.sip.py --das -mt=invite -c <package_count> --tn=<target_IP> -r -l
-python mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -s -l 
-python mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -m --il=ip_list.txt -l
+python3 mr.sip.py --das -mt=invite -c <package_count> --tn=<target_IP> -r -l
+python3 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -s -l 
+python3 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -m --il=ip_list.txt -l
 ```
 
 NOTE-1: Default to users (--to=) is _toUser.txt_ \
