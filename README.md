@@ -1,7 +1,8 @@
-[![Black Hat Arsenal](https://github.com/meliht/Mr.SIP/blob/master/BlackHatArsenalEU2019bagdge.svg)](https://www.blackhat.com/eu-19/arsenal/schedule/#mrsip-sip-based-audit--attack-tool-18190)
-[![Black Hat Arsenal](https://github.com/meliht/Mr.SIP/blob/master/BlackHatArsenalUSA2019bagdge.svg)](https://www.blackhat.com/us-19/arsenal/schedule/index.html#mrsip-sip-based-audit--attack-tool-16866)
-[![Black Hat Arsenal](https://github.com/meliht/Mr.SIP/blob/master/BlackHatArsenalAsia2019bagdge.svg)](https://www.blackhat.com/asia-19/arsenal/schedule/index.html#mrsip-sip-based-audit-and-attack-tool-14381)
-[![Offzone Moscow](https://github.com/meliht/Mr.SIP/blob/master/OffzoneMoscow2019badge.svg)](https://offzone.moscow/report/mr-sip-sip-based-audit-and-attack-tool/)
+[![Black Hat Arsenal](https://github.com/meliht/Mr.SIP/blob/master/badges/BlackHatArsenalEU2019badge.svg)](https://www.blackhat.com/eu-19/arsenal/schedule/#mrsip-sip-based-audit--attack-tool-18190)
+[![Black Hat Arsenal](https://github.com/meliht/Mr.SIP/blob/master/badges/BlackHatArsenalUSA2019badge.svg)](https://www.blackhat.com/us-19/arsenal/schedule/index.html#mrsip-sip-based-audit--attack-tool-16866)
+[![Black Hat Arsenal](https://github.com/meliht/Mr.SIP/blob/master/badges/BlackHatArsenalAsia2019badge.svg)](https://www.blackhat.com/asia-19/arsenal/schedule/index.html#mrsip-sip-based-audit-and-attack-tool-14381)
+[![Offzone Moscow](https://github.com/meliht/Mr.SIP/blob/master/badges/OffzoneMoscow2019badge.svg)](https://offzone.moscow/report/mr-sip-sip-based-audit-and-attack-tool/)
+[![DEF CON 28](https://github.com/meliht/Mr.SIP/blob/master/badges/Defcon28badge.svg)](https://www.defcon.org/html/defcon-safemode/dc-safemode-speakers.html#Tas)
 
 _________________________________________
 # < Mr.SIP: SIP-Based Audit and Attack Tool! >
