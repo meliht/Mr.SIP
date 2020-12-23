@@ -126,14 +126,14 @@ NOTE-3: Default message type (--mt) is _subscribe_, if not given.
 **SIP-DAS Usage:** \
 By using scapy library (IP spoofing is supported) 
 ```
-python3 mr.sip.py --das -mt=invite -c <package_count> --tn=<target_IP> -r 
+python3 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -r 
 python3 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -s 
 python3 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -m --il=ip_list.txt
 ```
 
 By using socket library (but doesn't support IP spoofing)
 ```
-python3 mr.sip.py --das -mt=invite -c <package_count> --tn=<target_IP> -r -l
+python3 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -r -l
 python3 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -s -l 
 python3 mr.sip.py --das --mt=invite -c <package_count> --tn=<target_IP> -m --il=ip_list.txt -l
 ```
