@@ -99,7 +99,7 @@ python3 mr.sip.py --nes --tn <target_network_address> --mt=subscribe --from=<fro
 NOTE-1: _<target_network_range>_ should be like `192.168.1.10-192.168.1.20` \
 NOTE-2: _<target_network>_ should be like `192.168.1.0` \
 NOTE-3: You can specify the output by `-i <output_file_name>`. By default the output will be written to _ip_list.txt_ file which is already exists in the repo. _SIP-ENUM_ uses that file as an input. \
-NOTE-4: Default destination (--dp) is _port 5060_, if not given. \
+NOTE-4: Default destination (--dp) is _port 5060_ (UDP), if not given. \
 NOTE-5: Default message type (--mt=) is _options_, if not given. \
 NOTE-6: Supported message types: _options_, _invite_, _subscribe_, _register_ \
 NOTE-7: _from_ and _to_ values can be arbitrary extension number.
@@ -116,7 +116,8 @@ python3 mr.sip.py --enum --tn=<target_IP> --from=from.txt
 
 NOTE-1: If target network (--tn) is not given, SIP-ENUM uses _ip_list.txt_ file as an input which is output of SIP-NES. \
 NOTE-2: Default from user (--from=) is _fromUser.txt_ \
-NOTE-3: Default message type (--mt) is _subscribe_, if not given.
+NOTE-3: Default message type (--mt) is _subscribe_, if not given. \
+NOTE-4: Only UDP is supported.
 
 **Output of SIP-ENUM:** 
 
