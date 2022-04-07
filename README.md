@@ -74,7 +74,7 @@ apt-get install python-scapy
 ```
 ```
 python3 mr.sip.py --help
-python3 mr.sip.py –usage
+python3 mr.sip.py --usage
 ```
 
 ##  Mr.SIP Usages: 
