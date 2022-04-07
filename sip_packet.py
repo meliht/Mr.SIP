@@ -32,7 +32,7 @@ class sip_packet:
     """
     def __init__(self, method, server_ip, server_port,
                  client_ip, from_user = "", to_user = "",
-                 user_agent = "", sp_user = "", protocol = "tcp", expire_duration=3600, wait=False):
+                 user_agent = "", sp_user = "", protocol = "scapy", expire_duration=3600, wait=False):
         self.method = method
         self.protocol = protocol
         self.server_ip = server_ip
@@ -119,6 +119,8 @@ class sip_packet:
                 pkt = IP(src=self.client_ip, dst=self.server_ip) / UDP(sport=int(self.client_port), dport=int(self.server_port)) / packet_data
                 send(pkt, iface=conf.iface)
                 return {"status": True}
+            else:
+                raise Exception('Illegal sip_packet arguments: unsupported protocol given')
         except Exception as e:
             # print(e)
             return {"status": False}
