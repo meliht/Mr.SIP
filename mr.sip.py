@@ -161,7 +161,7 @@ def networkScanner():
     conf.verb = 0
     global counter
 
-    try: client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
+    try: client_ip = netifaces.ifaddresses(str(conf.iface))[2][0]['addr']
     except ValueError: value_errors.append('Please specify a valid interface name with --if option.')
 
     message_type = args.message_type.lower() if args.message_type else "options"
@@ -253,7 +253,7 @@ def sipEnumerator():
     value_errors = []
     conf.verb = 0
 
-    try: client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
+    try: client_ip = netifaces.ifaddresses(str(conf.iface))[2][0]['addr']
     except ValueError: value_errors.append('Please specify a valid interface name with --if option.')
     
     message_type = args.message_type.lower() if args.message_type else "subscribe"
@@ -322,8 +322,8 @@ def dosSmilator():
     conf.verb = 0
 
     try: 
-        client_ip = netifaces.ifaddresses(conf.iface)[2][0]['addr']
-        client_netmask = netifaces.ifaddresses(conf.iface)[2][0]['netmask']
+        client_ip = netifaces.ifaddresses(str(conf.iface))[2][0]['addr']
+        client_netmask = netifaces.ifaddresses(str(conf.iface))[2][0]['netmask']
     except ValueError: value_errors.append('Please specify a valid interface name with --if option.')
     message_type = args.message_type.lower() if args.message_type else "invite"
     
