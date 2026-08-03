@@ -1,0 +1,25 @@
+<svg viewBox="0 0 490 146" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mrsip-banner-title">
+  <title id="mrsip-banner-title">Mr.SIP</title>
+  <style>
+    text {
+      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+      font-size: 18px;
+      /* Adding a slight stroke fills the 1px anti-aliasing gaps between block characters */
+      stroke-width: 0.5px;
+      stroke: #24292f;
+      fill: #24292f;
+    }
+    @media (prefers-color-scheme: dark) {
+      text {
+        stroke: #f0f6fc;
+        fill: #f0f6fc;
+      }
+    }
+  </style>
+  <text x="40" y="24" xml:space="preserve">███╗   ███╗██████╗    ███████╗██╗██████╗ </text>
+  <text x="40" y="46" xml:space="preserve">████╗ ████║██╔══██╗   ██╔════╝██║██╔══██╗</text>
+  <text x="40" y="68" xml:space="preserve">██╔████╔██║██████╔╝   ███████╗██║██████╔╝</text>
+  <text x="40" y="90" xml:space="preserve">██║╚██╔╝██║██╔══██╗   ╚════██║██║██╔═══╝ </text>
+  <text x="40" y="112" xml:space="preserve">██║ ╚═╝ ██║██║  ██║██╗███████║██║██║     </text>
+  <text x="40" y="134" xml:space="preserve">╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚══════╝╚═╝╚═╝     </text>
+</svg>

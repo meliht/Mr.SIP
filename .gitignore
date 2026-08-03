@@ -102,3 +102,29 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Internal notes / research (not for public repo)
+.internal/
+CLAUDE.md
+
+# Local lab config (contains test credentials, see docs/lab-guide.md)
+pbx-config/
+
+# Local scratch / runtime artifacts
+*.local
+.env.local
+
+# Scan output (SIP-NES/SIP-ENUM results - may contain real target data, never commit)
+output/*.txt
