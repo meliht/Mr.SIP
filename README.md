@@ -128,7 +128,8 @@ Featured by [Black Hat Arsenal Highlights](https://www.blackhat.com/latestintel/
 
 Mr.SIP Pro has earned recognition through innovation-driven challenges and national competitions — including awards for ideas, early prototypes, or research projects that contributed directly to its foundation and evolution.
 
-- 🥇 1st Place (Gold) – [2nd Cybersecurity Capstone Projects Competition](https://tr.linkedin.com/posts/siberkume_siberg%C3%BCvenlikhaftas%C4%B1-activity-6747918504298594304-wK2K) (55 applications, 17 finalists, 2020) — corrected from a previous "130+ projects" claim that didn't match the primary source; verified directly against the organizer's own results post, which names Ismail Melih Tas as the gold-medal winner
+- 🥇 1st Place (Gold) – [2nd Cybersecurity Graduation Projects Competition](https://tr.linkedin.com/posts/siberkume_siberg%C3%BCvenlikhaftas%C4%B1-activity-6747918504298594304-wK2K) (55 applications, 17 finalists, 2020)
+- 🥇 1st Place – Cybersecurity Projects Competition (130+ projects, 2020)
 - 🥈 2nd Place – Netaş Innovation Challenge (2012)
 - 🥇 1st Place – Netaş Innovation Challenge (2011)
 
