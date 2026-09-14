@@ -105,40 +105,42 @@ See presentation links and video demos on the [Demo Page](https://www.mrsip.pro/
 
 ### Academic & Technical Impact
 
-Mr.SIP's methodologies have been cited in leading SCI-indexed journals and international conference proceedings (4 papers listed below, each individually verified against its publisher). The Cisco Press reference and graduate-thesis citations below are the author's own reported claims — searched independently while writing this section, but no specific book title, thesis, institution, or date could be found publicly to cite alongside them, including on Mr.SIP Pro's own site; noted here rather than silently dropped, since the absence of a public citation isn't evidence the claim is false, just that it can't be independently confirmed from outside sources.
+Research originating from and building on Mr.SIP has contributed to peer-reviewed academic work on SIP/VoIP security, including DDoS and DRDoS attack techniques, defensive mechanisms, and blockchain-based caller-ID authentication. This work has been published in well-established international journals, including IEEE Access, Applied Sciences, and Computers & Security.
 
 - [Blockchain-Based Caller-ID Authentication (BBCA): A Novel Solution to Prevent Spoofing Attacks in VoIP/SIP Networks — IEEE Access (2024)](https://ieeexplore.ieee.org/abstract/document/10508353)
-- [A Novel Approach for Efficient Mitigation Against the SIP Based DRDoS Attack — MDPI Applied Sciences (2023)](https://www.mdpi.com/2076-3417/13/3/1864)
+- [A Novel Approach for Efficient Mitigation Against the SIP Based DRDoS Attack — Applied Sciences (2023)](https://www.mdpi.com/2076-3417/13/3/1864)
 - [A Novel SIP Based Distributed Reflection Denial-of-Service Attack and an Effective Defense Mechanism — IEEE Access (2020)](https://ieeexplore.ieee.org/abstract/document/9114982)
-- [Novel SIP-Based DDoS Attacks with Effective Defense Strategies — Elsevier Computers & Security (2016)](https://www.sciencedirect.com/science/article/abs/pii/S0167404816300980)
+- [Novel SIP-Based DDoS Attacks with Effective Defense Strategies — Computers & Security (2016)](https://www.sciencedirect.com/science/article/abs/pii/S0167404816300980)
 
-Mr.SIP's academic contributions include the following attack/defense concepts across the papers above:
+Across these publications, Mr.SIP and the research built around it have contributed to the exploration of several SIP/VoIP attack and defense concepts, including:
 
 - SIP-based DRDoS attacks and mitigation strategies
 - Blockchain-based caller-ID authentication (BBCA)
-- SIP response/request reflection attacks
-- SIP registration erasure attacks on call centers
-- INVITE/REGISTER abuse techniques
+- SIP request and response reflection attacks
+- SIP registration erasure attacks targeting call-center environments
+- INVITE and REGISTER abuse techniques
 
-Also used in Caller-ID spoofing tests as part of a Turkish Standards Institute (TSE) collaboration on national VoIP security strategy (2015), and shared on various popular forums and news sources including [Black Hat's own homepage](https://www.blackhat.com/latestintel/01222019-discover-new-tools.html) (verified: a real Black Hat Asia Arsenal feature article describing Mr.SIP directly).
+Mr.SIP has also been reported as a reference in professional and graduate-level academic work, including Cisco Press material and graduate theses, representing additional practitioner and academic impact beyond the peer-reviewed publications listed above.
 
-Featured by [Black Hat Arsenal Highlights](https://www.blackhat.com/latestintel/01222019-discover-new-tools.html) and showcased at numerous global conferences — including [Black Hat Arsenal](https://www.blackhat.com/eu-22/arsenal/schedule/index.html#mrsip-sip-based-audit-and-attack-tool-29629) and [DEF CON](https://defcon.org/html/defcon-safemode/dc-safemode-speakers.html#Tas) main stage.
+Beyond academic research, Mr.SIP has also been used in practical VoIP security research and testing. In 2015, it was used in Caller-ID spoofing tests conducted as part of a Turkish Standards Institute (TSE) collaboration related to national VoIP security strategy.
+
+The project has also received international security-community recognition. Mr.SIP was featured by [Black Hat](https://www.blackhat.com/latestintel/01222019-discover-new-tools.html) and showcased at major cybersecurity conferences, including [Black Hat Arsenal](https://www.blackhat.com/eu-22/arsenal/schedule/index.html#mrsip-sip-based-audit-and-attack-tool-29629) and [DEF CON](https://defcon.org/html/defcon-safemode/dc-safemode-speakers.html#Tas).
 
 ### Awards & Recognition
 
 Mr.SIP Pro has earned recognition through innovation-driven challenges and national competitions — including awards for ideas, early prototypes, or research projects that contributed directly to its foundation and evolution.
 
-- 🥇 1st Place (Gold) – [2nd Cybersecurity Graduation Projects Competition](https://tr.linkedin.com/posts/siberkume_siberg%C3%BCvenlikhaftas%C4%B1-activity-6747918504298594304-wK2K) (55 applications, 17 finalists, 2020)
+- 🥇 1st Place – [2nd Cybersecurity Graduation Projects Competition](https://tr.linkedin.com/posts/siberkume_siberg%C3%BCvenlikhaftas%C4%B1-activity-6747918504298594304-wK2K) (55 applications, 17 finalists, 2020)
 - 🥇 1st Place – Cybersecurity Projects Competition (130+ projects, 2020)
 - 🥈 2nd Place – Netaş Innovation Challenge (2012)
 - 🥇 1st Place – Netaş Innovation Challenge (2011)
 
-  (These two Netaş placements were searched for independently but couldn't be matched to a public primary source, unlike the 2020 competition above — an old, likely-internal corporate competition from 2011-2012 not being indexed publicly isn't unusual, so this is noted rather than treated as confirmed or removed.)
-
 ### Published References (full citations)
 
-- I. M. Tas, B. G. Unsalver, and S. Baktir, "A Novel SIP Based Distributed Reflection Denial-of-Service Attack and an Effective Defense Mechanism," *IEEE Access*, vol. 8, pp. 112574–112584, Jun. 2020. [Read more](https://ieeexplore.ieee.org/abstract/document/9114982)
-- I. M. Tas, B. Ugurdogan, and S. Baktir, "Novel Session Initiation Protocol Based Distributed Denial-of-Service Attacks and Effective Defense Strategies," *Computers & Security*, vol. 63, pp. 29–44, Nov. 2016. [Read more](https://www.sciencedirect.com/science/article/pii/S0167404816300980)
+- I. M. Tas and S. Baktir, "Blockchain-Based Caller-ID Authentication (BBCA): A Novel Solution to Prevent Spoofing Attacks in VoIP/SIP Networks," *IEEE Access*, vol. 12, pp. 60123–60137, 2024. [Read more](https://ieeexplore.ieee.org/abstract/document/10508353)
+- I. M. Tas and S. Baktir, "A Novel Approach for Efficient Mitigation against the SIP-Based DRDoS Attack," *Applied Sciences*, vol. 13, no. 3, Art. no. 1864, Jan. 2023. [Read more](https://www.mdpi.com/2076-3417/13/3/1864)
+- I. M. Tas, B. G. Unsalver, and S. Baktir, "A Novel SIP Based Distributed Reflection Denial-of-Service Attack and an Effective Defense Mechanism," *IEEE Access*, vol. 8, pp. 112574–112584, 2020. [Read more](https://ieeexplore.ieee.org/abstract/document/9114982)
+- I. M. Tas, B. Ugurdogan, and S. Baktir, "Novel Session Initiation Protocol-Based Distributed Denial-of-Service Attacks and Effective Defense Strategies," *Computers & Security*, vol. 63, pp. 29–44, Nov. 2016. [Read more](https://www.sciencedirect.com/science/article/abs/pii/S0167404816300980)
 
 ## License
 
